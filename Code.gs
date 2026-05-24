@@ -21,9 +21,11 @@ function doGet(e) {
       case 'get':          result = getTransactions();        break;
       case 'add':          result = addTransaction(p);        break;
       case 'delete':       result = deleteTransaction(p.id);  break;
-      case 'getBudgets':   result = getBudgets(p.period);     break;
-      case 'setBudget':    result = setBudget(p);             break;
-      case 'deleteBudget': result = deleteBudget(p.id);       break;
+      case 'getBudgets':      result = getBudgets(p.period);      break;
+      case 'setBudget':       result = setBudget(p);              break;
+      case 'deleteBudget':    result = deleteBudget(p.id);        break;
+      case 'clearBudgets':    result = clearBudgets();            break;
+      case 'clearTransactions': result = clearTransactions();     break;
       default:             result = { error: 'Unknown action: ' + p.action };
     }
   } catch (err) {
@@ -89,16 +91,24 @@ function deleteTransaction(id) {
 
 // ── Budget Functions ──────────────────────────────────────────────
 
+function periodStr(val) {
+  if (val instanceof Date) {
+    const s = Utilities.formatDate(val, 'Asia/Bangkok', 'yyyy-MM');
+    return s;
+  }
+  return String(val);
+}
+
 function getBudgets(period) {
   const sheet = getOrCreateBudgetSheet();
   const data  = sheet.getDataRange().getValues();
   if (data.length <= 1) return { budgets: [] };
 
   const budgets = data.slice(1)
-    .filter(r => r[0] && (!period || r[1] === period))
+    .filter(r => r[0] && (!period || periodStr(r[1]) === period))
     .map(r => ({
       id:       String(r[0]),
-      period:   String(r[1]),
+      period:   periodStr(r[1]),
       type:     String(r[2]),
       category: String(r[3]),
       amount:   Number(r[4])
@@ -112,15 +122,32 @@ function setBudget(p) {
   const data  = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][1]) === String(p.period) && String(data[i][3]) === String(p.category)) {
+    if (periodStr(data[i][1]) === String(p.period) && String(data[i][3]) === String(p.category)) {
       sheet.getRange(i + 1, 5).setValue(parseFloat(p.amount));
       return { success: true, id: String(data[i][0]) };
     }
   }
 
-  const id = Date.now().toString();
-  sheet.appendRow([id, p.period, p.type, p.category, parseFloat(p.amount)]);
+  const id  = Date.now().toString();
+  const row = sheet.getLastRow() + 1;
+  sheet.getRange(row, 2).setNumberFormat('@');
+  sheet.getRange(row, 1, 1, 5).setValues([[id, p.period, p.type || '', p.category, parseFloat(p.amount)]]);
   return { success: true, id };
+}
+
+function clearBudgets() {
+  const sheet = getOrCreateBudgetSheet();
+  const last  = sheet.getLastRow();
+  if (last > 1) sheet.deleteRows(2, last - 1);
+  sheet.getRange(2, 2, 1000, 1).setNumberFormat('@');
+  return { success: true, cleared: last - 1 };
+}
+
+function clearTransactions() {
+  const sheet = getOrCreateSheet();
+  const last  = sheet.getLastRow();
+  if (last > 1) sheet.deleteRows(2, last - 1);
+  return { success: true, cleared: last - 1 };
 }
 
 function deleteBudget(id) {
