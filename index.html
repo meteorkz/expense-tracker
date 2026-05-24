@@ -657,7 +657,8 @@ let curType     = 'expense';
 let selCat      = '';
 let chartMode   = 'cat';
 let chartInst   = null;
-let gasUrl      = '';
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbxkhyVnP2EDan355osrv0c2bwxwZqGDrADSw-3v8mq0-lIVDSdMA7xnfWSfpV_pq9b12w/exec';
+let gasUrl      = GAS_URL;
 
 // Budget state
 let budgetsAll   = [];
@@ -669,14 +670,10 @@ let curView      = 'main';      // 'main' | 'budget'
 
 // ── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  gasUrl = localStorage.getItem('gasUrl') || '';
+  gasUrl = localStorage.getItem('gasUrl') || GAS_URL;
 
-  if (!gasUrl) {
-    document.getElementById('setup-screen').style.display = 'flex';
-  } else {
-    showApp();
-    loadData();
-  }
+  showApp();
+  loadData();
 
   document.getElementById('date-in').value = today();
 });
