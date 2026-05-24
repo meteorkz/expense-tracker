@@ -8,7 +8,8 @@
 //  4. Copy URL ไปวางใน Setup หน้าแรกของ App
 // ============================================================
 
-const SHEET_NAME = 'Transactions';
+const SHEET_NAME   = 'Transactions';
+const BUDGET_SHEET = 'Budgets';
 const SPREADSHEET_ID = '1Jg5zC0P9VVG74xQ8P5EgYnOxA3YZCNw3W2Z4J08Rnno';
 
 function doGet(e) {
@@ -17,10 +18,13 @@ function doGet(e) {
 
   try {
     switch (p.action) {
-      case 'get':    result = getTransactions();      break;
-      case 'add':    result = addTransaction(p);      break;
-      case 'delete': result = deleteTransaction(p.id); break;
-      default:       result = { error: 'Unknown action: ' + p.action };
+      case 'get':          result = getTransactions();        break;
+      case 'add':          result = addTransaction(p);        break;
+      case 'delete':       result = deleteTransaction(p.id);  break;
+      case 'getBudgets':   result = getBudgets(p.period);     break;
+      case 'setBudget':    result = setBudget(p);             break;
+      case 'deleteBudget': result = deleteBudget(p.id);       break;
+      default:             result = { error: 'Unknown action: ' + p.action };
     }
   } catch (err) {
     result = { error: err.toString() };
@@ -82,6 +86,73 @@ function deleteTransaction(id) {
 
   return { error: 'Not found' };
 }
+
+// ── Budget Functions ──────────────────────────────────────────────
+
+function getBudgets(period) {
+  const sheet = getOrCreateBudgetSheet();
+  const data  = sheet.getDataRange().getValues();
+  if (data.length <= 1) return { budgets: [] };
+
+  const budgets = data.slice(1)
+    .filter(r => r[0] && (!period || r[1] === period))
+    .map(r => ({
+      id:       String(r[0]),
+      period:   String(r[1]),
+      type:     String(r[2]),
+      category: String(r[3]),
+      amount:   Number(r[4])
+    }));
+
+  return { budgets };
+}
+
+function setBudget(p) {
+  const sheet = getOrCreateBudgetSheet();
+  const data  = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][1]) === String(p.period) && String(data[i][3]) === String(p.category)) {
+      sheet.getRange(i + 1, 5).setValue(parseFloat(p.amount));
+      return { success: true, id: String(data[i][0]) };
+    }
+  }
+
+  const id = Date.now().toString();
+  sheet.appendRow([id, p.period, p.type, p.category, parseFloat(p.amount)]);
+  return { success: true, id };
+}
+
+function deleteBudget(id) {
+  const sheet = getOrCreateBudgetSheet();
+  const data  = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) {
+      sheet.deleteRow(i + 1);
+      return { success: true };
+    }
+  }
+  return { error: 'Not found' };
+}
+
+function getOrCreateBudgetSheet() {
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let   sheet = ss.getSheetByName(BUDGET_SHEET);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(BUDGET_SHEET);
+    sheet.appendRow(['ID', 'Period', 'Type', 'Category', 'Amount']);
+    sheet.setFrozenRows(1);
+    const hr = sheet.getRange(1, 1, 1, 5);
+    hr.setBackground('#4F46E5'); hr.setFontColor('#FFFFFF'); hr.setFontWeight('bold');
+    sheet.setColumnWidth(1, 160); sheet.setColumnWidth(2, 100);
+    sheet.setColumnWidth(3, 90);  sheet.setColumnWidth(4, 120); sheet.setColumnWidth(5, 100);
+  }
+  return sheet;
+}
+
+// ── Transaction Sheet ─────────────────────────────────────────────
 
 function getOrCreateSheet() {
   const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);

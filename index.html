@@ -66,7 +66,7 @@
     .btn-primary:active { opacity: .85; transform: scale(.98); }
 
     /* ── Main App ──────────────────────────────────── */
-    #main-app { display: none; padding-bottom: 100px; }
+    #main-app { display: none; padding-bottom: 130px; }
 
     /* Header */
     .app-header {
@@ -178,7 +178,7 @@
 
     /* FAB */
     .fab {
-      position: fixed; bottom: 24px;
+      position: fixed; bottom: 80px;
       right: calc(50% - 215px + 16px);
       width: 56px; height: 56px; background: var(--balance);
       border: none; border-radius: 18px; color: white; font-size: 30px;
@@ -298,6 +298,97 @@
       border-radius: 20px; font-size: 14px; opacity: 0; transition: all .3s; z-index: 999;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Bottom Nav ──────────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px; background: var(--card);
+      display: none; border-top: 1px solid var(--border);
+      z-index: 150; padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    }
+    .bottom-nav.show { display: flex; }
+    .nav-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      border: none; background: transparent; cursor: pointer; padding: 6px 0;
+      font-family: 'Sarabun', sans-serif; color: var(--sub); transition: color .2s;
+    }
+    .nav-btn.active { color: var(--balance); }
+    .nav-icon { font-size: 22px; }
+    .nav-label { font-size: 11px; font-weight: 600; }
+
+    /* ── Budget View ─────────────────────────────────── */
+    #budget-view { display: none; padding-bottom: 100px; }
+    .budget-header {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      padding: 20px 20px 32px;
+    }
+    .budget-type-toggle {
+      display: flex; background: rgba(255,255,255,.15); border-radius: 12px;
+      padding: 4px; margin-bottom: 16px;
+    }
+    .btype-btn {
+      flex: 1; padding: 8px; border: none; background: transparent; border-radius: 8px;
+      font-size: 14px; font-weight: 600; font-family: 'Sarabun', sans-serif;
+      color: rgba(255,255,255,.7); cursor: pointer; transition: all .2s;
+    }
+    .btype-btn.active { background: rgba(255,255,255,.25); color: white; }
+    .period-nav { display: flex; align-items: center; justify-content: center; gap: 20px; }
+    .period-nav button {
+      background: rgba(255,255,255,.15); border: none; border-radius: 8px;
+      width: 32px; height: 32px; color: white; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .period-lbl { font-size: 17px; font-weight: 600; color: white; min-width: 150px; text-align: center; }
+
+    /* Budget Summary Bar */
+    .budget-summary {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+      padding: 0 14px; margin-top: -24px; position: relative; z-index: 10; margin-bottom: 4px;
+    }
+    .bs-card { background: var(--card); border-radius: 14px; padding: 14px 12px;
+               box-shadow: var(--shadow); text-align: center; }
+    .bs-lbl  { font-size: 11px; color: var(--sub); margin-bottom: 3px; }
+    .bs-amt  { font-size: 14px; font-weight: 700; }
+    .bs-amt.ok   { color: var(--income); }
+    .bs-amt.warn { color: #F59E0B; }
+    .bs-amt.over { color: var(--expense); }
+
+    /* Budget Cards */
+    .budget-card {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      box-shadow: var(--shadow); margin-bottom: 10px;
+    }
+    .bc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .bc-icon   { font-size: 24px; }
+    .bc-name   { font-size: 14px; font-weight: 700; flex: 1; }
+    .bc-pct    { font-size: 13px; font-weight: 700; }
+    .bc-pct.ok   { color: var(--income); }
+    .bc-pct.warn { color: #F59E0B; }
+    .bc-pct.over { color: var(--expense); }
+    .progress-wrap { background: var(--bg); border-radius: 99px; height: 8px; margin-bottom: 10px; overflow: hidden; }
+    .progress-bar  { height: 100%; border-radius: 99px; transition: width .6s ease; }
+    .progress-bar.ok   { background: var(--income); }
+    .progress-bar.warn { background: #F59E0B; }
+    .progress-bar.over { background: var(--expense); }
+    .bc-amounts { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); }
+    .bc-amounts span:last-child { font-weight: 700; color: var(--text); }
+    .btn-set-budget {
+      width: 100%; margin-top: 10px; padding: 8px; background: var(--balance-light);
+      color: var(--balance); border: none; border-radius: 10px; font-size: 13px;
+      font-weight: 600; font-family: 'Sarabun', sans-serif; cursor: pointer;
+    }
+    .no-budget-hint {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px; color: var(--sub); font-size: 13px; gap: 8px; text-align: center;
+    }
+
+    /* Budget Modal */
+    .budget-modal-cat {
+      display: flex; gap: 10px; align-items: center; background: var(--bg);
+      border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+    }
+    .budget-modal-cat .ci { font-size: 28px; }
+    .budget-modal-cat-name { font-size: 15px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -403,6 +494,77 @@
 <!-- FAB -->
 <button class="fab" id="fab" onclick="openModal()" style="display:none">+</button>
 
+<!-- ─── Budget View ──────────────────────────────────────────────── -->
+<div id="budget-view">
+  <div class="budget-header">
+    <div class="header-top">
+      <div class="app-title">📋 วางแผนงบ</div>
+      <button class="btn-icon" onclick="openSettings()">⚙️</button>
+    </div>
+    <div class="budget-type-toggle">
+      <button class="btype-btn active" id="btype-mon" onclick="setBudgetType('monthly')">📅 รายเดือน</button>
+      <button class="btype-btn"        id="btype-yr"  onclick="setBudgetType('yearly')">📆 รายปี</button>
+    </div>
+    <div class="period-nav">
+      <button onclick="changeBudgetPeriod(-1)">‹</button>
+      <div class="period-lbl" id="budget-period-lbl"></div>
+      <button onclick="changeBudgetPeriod(1)">›</button>
+    </div>
+  </div>
+
+  <div class="budget-summary">
+    <div class="bs-card">
+      <div class="bs-lbl">งบที่ตั้ง</div>
+      <div class="bs-amt ok" id="bs-total">฿0</div>
+    </div>
+    <div class="bs-card">
+      <div class="bs-lbl">ใช้ไปแล้ว</div>
+      <div class="bs-amt" id="bs-used">฿0</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">งบแต่ละหมวด</div>
+      <button class="btn-icon" style="background:var(--balance);color:white;border-radius:10px;width:32px;height:32px;font-size:18px;" onclick="openBudgetModal(null)">+</button>
+    </div>
+    <div id="budget-list"></div>
+  </div>
+</div>
+
+<!-- ─── Bottom Nav ───────────────────────────────────────────────── -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-btn active" id="nav-main" onclick="switchView('main')">
+    <span class="nav-icon">💰</span>
+    <span class="nav-label">รายการ</span>
+  </button>
+  <button class="nav-btn" id="nav-budget" onclick="switchView('budget')">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">แผนงบ</span>
+  </button>
+</nav>
+
+<!-- ─── Budget Modal ─────────────────────────────────────────────── -->
+<div class="overlay" id="budget-overlay" onclick="handleBudgetOverlay(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">ตั้งงบหมวดหมู่</div>
+      <button class="btn-close" onclick="closeBudgetModal()">✕</button>
+    </div>
+    <div class="budget-modal-cat" id="bm-cat-display">
+      <span class="ci">🍜</span>
+      <span class="budget-modal-cat-name">อาหาร</span>
+    </div>
+    <div class="form-lbl">เลือกหมวดหมู่</div>
+    <div class="cat-grid" id="bm-cat-grid" style="margin-bottom:18px"></div>
+    <div class="amount-wrap">
+      <span class="amount-pfx">฿</span>
+      <input id="bm-amt" class="amount-in" type="number" inputmode="decimal" placeholder="0" min="0">
+    </div>
+    <button class="btn-primary" id="bm-save-btn" onclick="saveBudget()">บันทึกงบ</button>
+  </div>
+</div>
+
 <!-- ─── Add Modal ──────────────────────────────────────────────── -->
 <div class="overlay" id="add-overlay" onclick="handleAddOverlay(event)">
   <div class="modal">
@@ -497,6 +659,14 @@ let chartMode   = 'cat';
 let chartInst   = null;
 let gasUrl      = '';
 
+// Budget state
+let budgetsAll   = [];
+let budgetType   = 'monthly';   // 'monthly' | 'yearly'
+let budgetMonth  = new Date().getMonth();
+let budgetYear   = new Date().getFullYear();
+let selBudgetCat = '';
+let curView      = 'main';      // 'main' | 'budget'
+
 // ── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   gasUrl = localStorage.getItem('gasUrl') || '';
@@ -530,7 +700,20 @@ function showApp() {
   document.getElementById('setup-screen').style.display = 'none';
   document.getElementById('main-app').style.display     = 'block';
   document.getElementById('fab').style.display          = 'flex';
+  document.getElementById('bottom-nav').classList.add('show');
   updateMonthLabel();
+  updateBudgetPeriodLabel();
+}
+
+// ── View Switching ────────────────────────────────────────────────
+function switchView(view) {
+  curView = view;
+  document.getElementById('main-app').style.display    = view === 'main'   ? 'block' : 'none';
+  document.getElementById('budget-view').style.display = view === 'budget' ? 'block' : 'none';
+  document.getElementById('fab').style.display         = view === 'main'   ? 'flex'  : 'none';
+  document.getElementById('nav-main').classList.toggle('active',   view === 'main');
+  document.getElementById('nav-budget').classList.toggle('active', view === 'budget');
+  if (view === 'budget') renderBudgetView();
 }
 
 // ── API ──────────────────────────────────────────────────────────
@@ -545,10 +728,15 @@ async function api(params) {
 async function loadData() {
   showLoading();
   try {
-    const data = await api({ action: 'get' });
-    if (data.error) throw new Error(data.error);
-    txAll = data.transactions || [];
+    const [txRes, bdRes] = await Promise.all([
+      api({ action: 'get' }),
+      api({ action: 'getBudgets' })
+    ]);
+    if (txRes.error) throw new Error(txRes.error);
+    txAll      = txRes.transactions || [];
+    budgetsAll = bdRes.budgets      || [];
     render();
+    if (curView === 'budget') renderBudgetView();
   } catch (e) {
     console.error(e);
     toast('❌ โหลดไม่ได้ ตรวจสอบ URL');
@@ -892,6 +1080,207 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ── Budget: Period Helpers ────────────────────────────────────────
+function budgetPeriodKey() {
+  return budgetType === 'monthly'
+    ? `${budgetYear}-${String(budgetMonth + 1).padStart(2, '0')}`
+    : `${budgetYear}`;
+}
+
+function updateBudgetPeriodLabel() {
+  document.getElementById('budget-period-lbl').textContent =
+    budgetType === 'monthly'
+      ? `${TH_MONTHS[budgetMonth]} ${budgetYear + 543}`
+      : `ปี ${budgetYear + 543}`;
+}
+
+function setBudgetType(type) {
+  budgetType = type;
+  document.getElementById('btype-mon').classList.toggle('active', type === 'monthly');
+  document.getElementById('btype-yr').classList.toggle('active', type === 'yearly');
+  updateBudgetPeriodLabel();
+  renderBudgetView();
+}
+
+function changeBudgetPeriod(dir) {
+  if (budgetType === 'monthly') {
+    budgetMonth += dir;
+    if (budgetMonth < 0)  { budgetMonth = 11; budgetYear--; }
+    if (budgetMonth > 11) { budgetMonth = 0;  budgetYear++; }
+  } else {
+    budgetYear += dir;
+  }
+  updateBudgetPeriodLabel();
+  renderBudgetView();
+}
+
+// ── Budget: Load & Render ─────────────────────────────────────────
+async function loadBudgets() {
+  try {
+    const res = await api({ action: 'getBudgets' });
+    budgetsAll = res.budgets || [];
+  } catch (e) { budgetsAll = []; }
+}
+
+function getBudgetsForPeriod() {
+  const key = budgetPeriodKey();
+  return budgetsAll.filter(b => b.period === key);
+}
+
+function getActualForPeriod() {
+  // sum expense transactions matching period
+  if (budgetType === 'monthly') {
+    return txAll.filter(t =>
+      t.type === 'expense' &&
+      new Date(t.date).getMonth() === budgetMonth &&
+      new Date(t.date).getFullYear() === budgetYear
+    );
+  } else {
+    return txAll.filter(t =>
+      t.type === 'expense' &&
+      new Date(t.date).getFullYear() === budgetYear
+    );
+  }
+}
+
+function renderBudgetView() {
+  const periodBudgets = getBudgetsForPeriod();
+  const periodExpenses = getActualForPeriod();
+
+  const totalBudget = periodBudgets.reduce((s, b) => s + b.amount, 0);
+  const totalUsed   = periodExpenses.reduce((s, t) => s + t.amount, 0);
+  const pct         = totalBudget > 0 ? totalUsed / totalBudget : 0;
+
+  document.getElementById('bs-total').textContent = fmt(totalBudget);
+
+  const usedEl = document.getElementById('bs-used');
+  usedEl.textContent = fmt(totalUsed);
+  usedEl.className   = 'bs-amt ' + pctClass(pct);
+
+  const list = document.getElementById('budget-list');
+
+  if (periodBudgets.length === 0) {
+    list.innerHTML = `
+      <div class="no-budget-hint">
+        <div style="font-size:40px;opacity:.4">📋</div>
+        <div>ยังไม่มีงบสำหรับช่วงนี้</div>
+        <div style="color:var(--balance);font-weight:600;cursor:pointer" onclick="openBudgetModal(null)">+ เพิ่มงบหมวดหมู่</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = periodBudgets.map(b => {
+    const cat    = CATS.expense.find(c => c.k === b.category) || { l: b.category, i: '📌' };
+    const used   = periodExpenses.filter(t => t.category === b.category).reduce((s, t) => s + t.amount, 0);
+    const p      = b.amount > 0 ? Math.min(used / b.amount, 1) : 0;
+    const cls    = pctClass(p);
+    const pctTxt = b.amount > 0 ? Math.round(used / b.amount * 100) + '%' : '0%';
+    const left   = b.amount - used;
+
+    return `
+      <div class="budget-card">
+        <div class="bc-header">
+          <span class="bc-icon">${cat.i}</span>
+          <span class="bc-name">${cat.l}</span>
+          <span class="bc-pct ${cls}">${pctTxt}</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar ${cls}" style="width:${Math.round(p * 100)}%"></div>
+        </div>
+        <div class="bc-amounts">
+          <span>ใช้ไป ${fmt(used)} จาก ${fmt(b.amount)}</span>
+          <span>${left >= 0 ? 'เหลือ ' + fmt(left) : '⚠️ เกิน ' + fmt(-left)}</span>
+        </div>
+        <button class="btn-set-budget" onclick="openBudgetModal('${b.category}')">✏️ แก้ไขงบ</button>
+      </div>`;
+  }).join('');
+}
+
+function pctClass(p) {
+  if (p >= 1)   return 'over';
+  if (p >= 0.8) return 'warn';
+  return 'ok';
+}
+
+// ── Budget: Modal ─────────────────────────────────────────────────
+function openBudgetModal(catKey) {
+  selBudgetCat = catKey || '';
+  document.getElementById('bm-amt').value = '';
+
+  // Pre-fill amount if editing existing budget
+  if (catKey) {
+    const existing = budgetsAll.find(b => b.period === budgetPeriodKey() && b.category === catKey);
+    if (existing) document.getElementById('bm-amt').value = existing.amount;
+  }
+
+  renderBudgetCatGrid();
+  updateBudgetCatDisplay();
+  document.getElementById('budget-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('bm-amt').focus(), 400);
+}
+
+function closeBudgetModal() {
+  document.getElementById('budget-overlay').classList.remove('show');
+}
+
+function handleBudgetOverlay(e) {
+  if (e.target === e.currentTarget) closeBudgetModal();
+}
+
+function renderBudgetCatGrid() {
+  document.getElementById('bm-cat-grid').innerHTML = CATS.expense.map(c => `
+    <button class="cat-btn ${selBudgetCat === c.k ? 'sel' : ''}" onclick="selBudgetCatFn('${c.k}')">
+      <span class="ci">${c.i}</span><span>${c.l}</span>
+    </button>`).join('');
+}
+
+function selBudgetCatFn(k) {
+  selBudgetCat = k;
+  renderBudgetCatGrid();
+  updateBudgetCatDisplay();
+}
+
+function updateBudgetCatDisplay() {
+  const cat = CATS.expense.find(c => c.k === selBudgetCat) || { l: 'เลือกหมวดหมู่', i: '📋' };
+  document.getElementById('bm-cat-display').innerHTML =
+    `<span class="ci">${cat.i}</span><span class="budget-modal-cat-name">${cat.l}</span>`;
+}
+
+async function saveBudget() {
+  const amount = parseFloat(document.getElementById('bm-amt').value);
+  if (!selBudgetCat) { toast('❌ เลือกหมวดหมู่'); return; }
+  if (!amount || amount <= 0) { toast('❌ ใส่จำนวนงบ'); return; }
+
+  const btn = document.getElementById('bm-save-btn');
+  btn.textContent = 'กำลังบันทึก...';
+  btn.disabled    = true;
+
+  try {
+    const res = await api({
+      action: 'setBudget',
+      period: budgetPeriodKey(),
+      type:   budgetType,
+      category: selBudgetCat,
+      amount
+    });
+    if (res.error) throw new Error(res.error);
+
+    // Update local cache
+    const idx = budgetsAll.findIndex(b => b.period === budgetPeriodKey() && b.category === selBudgetCat);
+    if (idx >= 0) { budgetsAll[idx].amount = amount; }
+    else { budgetsAll.push({ id: res.id, period: budgetPeriodKey(), type: budgetType, category: selBudgetCat, amount }); }
+
+    closeBudgetModal();
+    toast('✅ บันทึกงบแล้ว');
+    renderBudgetView();
+  } catch (e) {
+    toast('❌ บันทึกไม่ได้');
+  } finally {
+    btn.textContent = 'บันทึกงบ';
+    btn.disabled    = false;
+  }
 }
 </script>
 </body>
