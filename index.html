@@ -382,6 +382,155 @@
       padding: 24px; color: var(--sub); font-size: 13px; gap: 8px; text-align: center;
     }
 
+    /* ── Dark Mode ──────────────────────────────────── */
+    body[data-dark] {
+      --bg:     #0F172A;
+      --card:   #1E293B;
+      --text:   #F1F5F9;
+      --sub:    #94A3B8;
+      --border: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.2);
+      --balance-light: #312E81;
+      --income-light:  #052E16;
+      --expense-light: #450A0A;
+    }
+    body[data-dark] .app-header        { background: linear-gradient(135deg,#0F172A 0%,#1E293B 100%); }
+    body[data-dark] .budget-header     { background: linear-gradient(135deg,#312E81 0%,#4C1D95 100%); }
+    body[data-dark] .task-header       { background: linear-gradient(135deg,#042F2E 0%,#0C4A6E 100%); }
+    body[data-dark] .report-header     { background: linear-gradient(135deg,#78350F 0%,#92400E 100%); }
+    body[data-dark] .cat-btn           { background: #263548; }
+    body[data-dark] .cat-btn.sel       { background: var(--balance-light); }
+    body[data-dark] .type-toggle       { background: #263548; }
+    body[data-dark] .amount-wrap       { background: #263548; }
+    body[data-dark] .form-in           { background: #263548; color: var(--text); }
+    body[data-dark] .form-in:focus     { background: var(--card); }
+    body[data-dark] .chart-tabs        { background: #263548; }
+    body[data-dark] .chart-tab.active  { background: var(--card); }
+    body[data-dark] .ftab              { background: var(--card); }
+    body[data-dark] .month-chip.selected { background: #0F766E; }
+    body[data-dark] .month-chip:not(.selected):hover { background: #263548; }
+    body[data-dark] select             { background: #263548; color: var(--text); border-color: var(--border); }
+    body[data-dark] .search-wrap input { background: #263548; color: var(--text); }
+    body[data-dark] .pin-key           { background: #263548; }
+    body[data-dark] .goal-card         { background: var(--card); }
+    body[data-dark] .progress-wrap     { background: #263548; }
+    body[data-dark] .task-alert        { background: linear-gradient(135deg,#042F2E,#0C4A6E); }
+
+    /* ── Search Bar ──────────────────────────────────── */
+    .search-wrap {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--card); border-radius: 14px; padding: 10px 14px;
+      box-shadow: var(--shadow); margin: 10px 14px 0;
+    }
+    .search-wrap input {
+      flex: 1; border: none; background: transparent; font-size: 14px;
+      font-family: 'Sarabun', sans-serif; color: var(--text); outline: none;
+    }
+    .search-wrap input::placeholder { color: var(--sub); }
+    .search-clear { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--sub); padding: 0; }
+
+    /* ── Toggle Switch ───────────────────────────────── */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; }
+    .toggle-label { font-size: 14px; font-weight: 600; }
+    .toggle-sw { position: relative; width: 44px; height: 24px; }
+    .toggle-sw input { opacity: 0; width: 0; height: 0; }
+    .toggle-thumb {
+      position: absolute; inset: 0; background: var(--border); border-radius: 99px; cursor: pointer; transition: .3s;
+    }
+    .toggle-thumb:before {
+      content: ''; position: absolute; left: 3px; top: 3px;
+      width: 18px; height: 18px; background: white; border-radius: 50%; transition: .3s;
+    }
+    .toggle-sw input:checked + .toggle-thumb { background: var(--balance); }
+    .toggle-sw input:checked + .toggle-thumb:before { transform: translateX(20px); }
+
+    /* ── PIN Overlay ─────────────────────────────────── */
+    .pin-overlay {
+      position: fixed; inset: 0; background: var(--bg);
+      z-index: 999; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 32px;
+    }
+    .pin-title  { font-size: 20px; font-weight: 700; color: var(--text); }
+    .pin-circles { display: flex; gap: 16px; }
+    .pin-dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--balance); background: transparent; transition: background .15s;
+    }
+    .pin-dot.filled { background: var(--balance); }
+    .pin-numpad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
+    .pin-key {
+      width: 72px; height: 72px; border-radius: 50%; border: none; background: var(--card);
+      font-size: 22px; font-weight: 700; font-family: 'Sarabun', sans-serif; color: var(--text);
+      cursor: pointer; box-shadow: var(--shadow); transition: transform .1s;
+    }
+    .pin-key:active { transform: scale(.92); }
+    .pin-key.del { font-size: 18px; color: var(--sub); }
+    .pin-err { font-size: 14px; color: var(--expense); font-weight: 600; }
+
+    /* ── Report View ─────────────────────────────────── */
+    #report-view { display: none; padding-bottom: 100px; }
+    .report-header {
+      background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+      padding: 20px 20px 40px;
+    }
+    .rep-year-nav { display: flex; align-items: center; justify-content: center; gap: 20px; }
+    .rep-year-nav button {
+      background: rgba(255,255,255,.15); border: none; border-radius: 8px;
+      width: 32px; height: 32px; color: white; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .rep-year-lbl { font-size: 17px; font-weight: 700; color: white; }
+    .rep-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      padding: 0 14px; margin-top: -22px; position: relative; z-index: 10; margin-bottom: 10px;
+    }
+    .rep-card { background: var(--card); border-radius: 12px; padding: 12px 8px;
+                box-shadow: var(--shadow); text-align: center; }
+    .rep-lbl { font-size: 10px; color: var(--sub); margin-bottom: 3px; }
+    .rep-amt { font-size: 12px; font-weight: 700; }
+    .top-cats { display: flex; flex-direction: column; gap: 8px; }
+    .top-cat-item { display: flex; align-items: center; gap: 10px; }
+    .top-cat-bar-wrap { flex: 1; background: var(--bg); border-radius: 99px; height: 6px; overflow: hidden; }
+    .top-cat-bar { height: 100%; border-radius: 99px; background: var(--expense); }
+    .top-cat-pct { font-size: 12px; color: var(--sub); width: 36px; text-align: right; }
+
+    /* ── Goal Card ───────────────────────────────────── */
+    .goal-card {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      box-shadow: var(--shadow); margin-bottom: 10px;
+    }
+    .goal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .goal-dot  { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .goal-name { font-size: 14px; font-weight: 700; flex: 1; }
+    .goal-deadline { font-size: 11px; color: var(--sub); }
+    .goal-amounts { display: flex; justify-content: space-between; font-size: 12px; color: var(--sub); margin-bottom: 8px; }
+    .goal-amounts span:last-child { font-weight: 700; color: var(--text); }
+    .goal-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-deposit { flex: 1; padding: 8px; background: var(--income-light); color: var(--income);
+      border: none; border-radius: 10px; font-size: 13px; font-weight: 600;
+      font-family: 'Sarabun', sans-serif; cursor: pointer; }
+    .btn-del-goal { padding: 8px 12px; background: var(--expense-light); color: var(--expense);
+      border: none; border-radius: 10px; font-size: 13px; cursor: pointer; }
+
+    /* ── Recurring Card ──────────────────────────────── */
+    .rec-card {
+      background: var(--card); border-radius: 14px; padding: 14px 16px;
+      box-shadow: var(--shadow); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .rec-icon { font-size: 26px; }
+    .rec-info { flex: 1; }
+    .rec-name { font-size: 14px; font-weight: 600; }
+    .rec-meta { font-size: 12px; color: var(--sub); }
+    .rec-right { text-align: right; }
+    .rec-amt { font-size: 15px; font-weight: 700; color: var(--expense); }
+    .rec-day { font-size: 11px; color: var(--sub); }
+    .btn-del-rec { background: var(--expense-light); color: var(--expense); border: none;
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; margin-top: 4px; }
+
+    /* ── 4-tab nav ───────────────────────────────────── */
+    .nav-label { font-size: 10px; font-weight: 600; }
+
     /* ── Task View ───────────────────────────────────── */
     #task-view { display: none; padding-bottom: 100px; }
     .task-header {
@@ -535,6 +684,13 @@
     </div>
   </div>
 
+  <!-- Search Bar -->
+  <div class="search-wrap" id="search-wrap">
+    <span>🔍</span>
+    <input id="search-input" type="text" placeholder="ค้นหารายการ..." oninput="onSearch(this.value)">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
+  </div>
+
   <!-- Task Alert Banner -->
   <div class="task-alert" id="task-alert-banner" style="display:none" onclick="switchView('task')">
     <span class="ta-icon">📅</span>
@@ -548,6 +704,7 @@
       <div class="chart-tabs">
         <button class="chart-tab active" id="tab-cat" onclick="switchChart('cat')">หมวดหมู่</button>
         <button class="chart-tab"        id="tab-mon" onclick="switchChart('mon')">6 เดือน</button>
+        <button class="chart-tab"        id="tab-cmp" onclick="switchChart('cmp')">เปรียบ</button>
       </div>
       <div class="chart-wrap">
         <canvas id="chart"></canvas>
@@ -614,6 +771,14 @@
     </div>
     <div id="budget-list"></div>
   </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">🎯 เป้าหมายการออม</div>
+      <button class="btn-icon" style="background:#D97706;color:white;border-radius:10px;width:32px;height:32px;font-size:18px" onclick="openGoalModal()">+</button>
+    </div>
+    <div id="goal-list"></div>
+  </div>
 </div>
 
 <!-- ─── Task View ────────────────────────────────────────────────── -->
@@ -639,6 +804,42 @@
     </div>
     <div id="task-list"></div>
   </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">🔄 รายจ่ายประจำ</div>
+      <button class="btn-icon" style="background:#7C3AED;color:white;border-radius:10px;width:32px;height:32px;font-size:18px" onclick="openRecurModal()">+</button>
+    </div>
+    <button class="btn-secondary" style="margin-bottom:10px" onclick="applyRecurring()">📅 สร้างแผนเดือนนี้จากรายจ่ายประจำ</button>
+    <div id="recur-list"></div>
+  </div>
+</div>
+
+<!-- ─── Report View ──────────────────────────────────────────────── -->
+<div id="report-view">
+  <div class="report-header">
+    <div class="header-top">
+      <div class="app-title">📊 รายงานประจำปี</div>
+      <button class="btn-icon" onclick="openSettings()">⚙️</button>
+    </div>
+    <div class="rep-year-nav">
+      <button onclick="changeRepYear(-1)">‹</button>
+      <div class="rep-year-lbl" id="rep-year-lbl"></div>
+      <button onclick="changeRepYear(1)">›</button>
+    </div>
+  </div>
+  <div class="rep-cards" id="rep-cards"></div>
+  <div class="section">
+    <div class="chart-card">
+      <div class="chart-wrap" style="height:200px"><canvas id="rep-chart"></canvas></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title" style="margin-bottom:12px">🏆 หมวดที่ใช้เยอะสุด</div>
+    <div class="goal-card" style="padding:16px">
+      <div id="top-cats-list"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ─── Bottom Nav ───────────────────────────────────────────────── -->
@@ -651,6 +852,10 @@
     <span class="nav-icon">📅</span>
     <span class="nav-label">แผนล่วงหน้า</span>
     <span class="nav-badge" id="task-nav-badge"></span>
+  </button>
+  <button class="nav-btn" id="nav-report" onclick="switchView('report')">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">รายงาน</span>
   </button>
   <button class="nav-btn" id="nav-budget" onclick="switchView('budget')">
     <span class="nav-icon">📋</span>
@@ -729,10 +934,142 @@
   </div>
 </div>
 
+<!-- ─── PIN Overlay ───────────────────────────────────────────────── -->
+<div class="pin-overlay" id="pin-overlay" style="display:none">
+  <div style="font-size:48px">🔐</div>
+  <div class="pin-title">ใส่ PIN</div>
+  <div class="pin-circles" id="pin-circles">
+    <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-err" id="pin-err" style="opacity:0">PIN ไม่ถูกต้อง</div>
+  <div class="pin-numpad">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <button class="pin-key del" onclick="pinKey('del')">⌫</button>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key del" onclick="pinKey('clr')">✕</button>
+  </div>
+</div>
+
+<!-- ─── Recurring Modal ───────────────────────────────────────────── -->
+<div class="overlay" id="recur-overlay" onclick="if(event.target===this)closeRecurModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">เพิ่มรายจ่ายประจำ</div>
+      <button class="btn-close" onclick="closeRecurModal()">✕</button>
+    </div>
+    <div class="form-lbl">หมวดหมู่</div>
+    <div class="cat-grid" id="recur-cat-grid"></div>
+    <input id="recur-desc" class="form-in" type="text" placeholder="รายละเอียด เช่น Netflix, ค่าเช่า">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+      <div style="flex:1">
+        <div class="form-lbl">จำนวนเงิน (฿)</div>
+        <input id="recur-amt" class="form-in" type="number" placeholder="0" style="margin:0">
+      </div>
+      <div style="width:100px">
+        <div class="form-lbl">วันที่ตัด</div>
+        <input id="recur-day" class="form-in" type="number" min="1" max="31" placeholder="1-31" style="margin:0">
+      </div>
+    </div>
+    <button class="btn-primary" id="recur-save-btn" onclick="saveRecurring()">บันทึก</button>
+  </div>
+</div>
+
+<!-- ─── Goal Modal ────────────────────────────────────────────────── -->
+<div class="overlay" id="goal-overlay" onclick="if(event.target===this)closeGoalModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">ตั้งเป้าหมายการออม</div>
+      <button class="btn-close" onclick="closeGoalModal()">✕</button>
+    </div>
+    <input id="goal-name" class="form-in" type="text" placeholder="ชื่อเป้าหมาย เช่น ซื้อรถ, ท่องเที่ยว">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <div class="form-lbl">เป้าหมาย (฿)</div>
+        <input id="goal-target" class="form-in" type="number" placeholder="0" style="margin:0">
+      </div>
+      <div style="width:110px">
+        <div class="form-lbl">เดือนที่อยากได้</div>
+        <input id="goal-deadline" class="form-in" type="month" style="margin:0">
+      </div>
+    </div>
+    <div class="form-lbl">สีธีม</div>
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <button onclick="selGoalColor('#6366F1')" style="width:36px;height:36px;border-radius:50%;background:#6366F1;border:3px solid transparent;cursor:pointer" id="gc-0"></button>
+      <button onclick="selGoalColor('#10B981')" style="width:36px;height:36px;border-radius:50%;background:#10B981;border:3px solid transparent;cursor:pointer" id="gc-1"></button>
+      <button onclick="selGoalColor('#F59E0B')" style="width:36px;height:36px;border-radius:50%;background:#F59E0B;border:3px solid transparent;cursor:pointer" id="gc-2"></button>
+      <button onclick="selGoalColor('#EF4444')" style="width:36px;height:36px;border-radius:50%;background:#EF4444;border:3px solid transparent;cursor:pointer" id="gc-3"></button>
+      <button onclick="selGoalColor('#EC4899')" style="width:36px;height:36px;border-radius:50%;background:#EC4899;border:3px solid transparent;cursor:pointer" id="gc-4"></button>
+    </div>
+    <button class="btn-primary" id="goal-save-btn" onclick="saveGoal()">บันทึกเป้าหมาย</button>
+  </div>
+</div>
+
+<!-- ─── Deposit Modal ─────────────────────────────────────────────── -->
+<div class="overlay" id="deposit-overlay" onclick="if(event.target===this)closeDepositModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="deposit-title">ฝากเงิน</div>
+      <button class="btn-close" onclick="closeDepositModal()">✕</button>
+    </div>
+    <div class="amount-wrap">
+      <span class="amount-pfx">฿</span>
+      <input id="deposit-amt" class="amount-in" type="number" inputmode="decimal" placeholder="0" min="0">
+    </div>
+    <button class="btn-primary" id="deposit-save-btn" onclick="saveDeposit()">บันทึก</button>
+  </div>
+</div>
+
+<!-- ─── Custom Cat Modal ──────────────────────────────────────────── -->
+<div class="overlay" id="custom-cat-overlay" onclick="if(event.target===this)closeCustomCatModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">เพิ่มหมวดหมู่</div>
+      <button class="btn-close" onclick="closeCustomCatModal()">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      <input id="ccat-emoji" class="form-in" type="text" placeholder="😀" maxlength="2" style="width:70px;margin:0;text-align:center;font-size:24px">
+      <input id="ccat-name" class="form-in" type="text" placeholder="ชื่อหมวดหมู่" style="flex:1;margin:0">
+    </div>
+    <button class="btn-primary" onclick="saveCustomCat()">เพิ่มหมวดหมู่</button>
+  </div>
+</div>
+
 <!-- ─── Settings Panel ─────────────────────────────────────────── -->
 <div class="settings-overlay" id="set-overlay" onclick="handleSetOverlay(event)">
   <div class="settings-panel">
     <div class="settings-title">⚙️ ตั้งค่า</div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">🌙 Dark Mode</span>
+      <label class="toggle-sw">
+        <input type="checkbox" id="dark-toggle" onchange="toggleDark(this.checked)">
+        <span class="toggle-thumb"></span>
+      </label>
+    </div>
+
+    <hr class="divider">
+
+    <div class="settings-lbl">🔐 PIN Lock</div>
+    <div id="pin-status" style="font-size:13px;color:var(--sub);margin-bottom:8px"></div>
+    <button class="btn-secondary" id="btn-set-pin" onclick="startSetPin()">🔐 ตั้ง PIN 4 หลัก</button>
+    <button class="btn-secondary" id="btn-clr-pin" onclick="clearPin()" style="color:var(--expense);display:none">🔓 ยกเลิก PIN</button>
+
+    <hr class="divider">
+
+    <div class="settings-lbl">หมวดหมู่ Custom</div>
+    <div id="custom-cat-list" style="margin-bottom:8px"></div>
+    <button class="btn-secondary" onclick="openCustomCatModal()">+ เพิ่มหมวดหมู่</button>
+
+    <hr class="divider">
 
     <div class="settings-lbl">Apps Script URL</div>
     <input id="set-url" class="setup-input" type="url" placeholder="https://script.google.com/...">
@@ -741,6 +1078,7 @@
     <hr class="divider">
 
     <div class="settings-lbl">ข้อมูล</div>
+    <button class="btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
     <button class="btn-secondary" onclick="refreshData()">🔄 โหลดข้อมูลใหม่</button>
     <button class="btn-secondary" onclick="resetSetup()" style="color:var(--expense)">🔌 รีเซ็ตการตั้งค่า</button>
   </div>
@@ -802,7 +1140,7 @@ let budgetType   = 'monthly';   // 'monthly' | 'yearly'
 let budgetMonth  = new Date().getMonth();
 let budgetYear   = new Date().getFullYear();
 let selBudgetCat = '';
-let curView      = 'main';      // 'main' | 'task' | 'budget'
+let curView      = 'main';      // 'main' | 'task' | 'report' | 'budget'
 
 // Task state
 let tasksAll    = [];
@@ -810,20 +1148,58 @@ let taskYear    = new Date().getFullYear();
 let selTaskMonth = new Date().getMonth();
 let selTaskCat  = '';
 
+// Recurring + Goals state
+let recurringAll = [];
+let goalsAll     = [];
+let selRecurCat  = '';
+let curGoalColor = '#6366F1';
+let depositGoalId = null;
+
+// Report state
+let repYear = new Date().getFullYear();
+let repChart = null;
+
+// PIN state
+let pinBuffer  = '';
+let pinMode    = 'unlock'; // 'unlock' | 'set1' | 'set2'
+let pinTemp    = '';
+
+// Search state
+let searchQuery = '';
+
+// Custom categories (localStorage)
+let customCats = [];
+
 const TH_MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
 // ── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  gasUrl = localStorage.getItem('gasUrl') || GAS_URL;
+  gasUrl     = localStorage.getItem('gasUrl') || GAS_URL;
+  customCats = JSON.parse(localStorage.getItem('customCats') || '[]');
+  mergeCustomCats();
 
-  showApp();
-  loadData();
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') { document.body.setAttribute('data-dark', ''); }
+
+  const savedPin = localStorage.getItem('pin');
+  if (savedPin) {
+    document.getElementById('pin-overlay').style.display = 'flex';
+    pinMode = 'unlock';
+  } else {
+    initApp();
+  }
 
   document.getElementById('date-in').value = today();
 });
 
 function today() {
   return new Date().toISOString().split('T')[0];
+}
+
+function initApp() {
+  showApp();
+  loadData();
+  document.getElementById('date-in').value = today();
 }
 
 function saveSetup() {
@@ -844,20 +1220,23 @@ function showApp() {
   document.getElementById('bottom-nav').classList.add('show');
   updateMonthLabel();
   updateBudgetPeriodLabel();
+  initSettingsUI();
 }
 
 // ── View Switching ────────────────────────────────────────────────
 function switchView(view) {
   curView = view;
-  document.getElementById('main-app').style.display    = view === 'main'   ? 'block' : 'none';
-  document.getElementById('task-view').style.display   = view === 'task'   ? 'block' : 'none';
-  document.getElementById('budget-view').style.display = view === 'budget' ? 'block' : 'none';
-  document.getElementById('fab').style.display         = view === 'main'   ? 'flex'  : 'none';
-  document.getElementById('nav-main').classList.toggle('active',   view === 'main');
-  document.getElementById('nav-task').classList.toggle('active',   view === 'task');
-  document.getElementById('nav-budget').classList.toggle('active', view === 'budget');
-  if (view === 'budget') renderBudgetView();
-  if (view === 'task')   renderTaskView();
+  document.getElementById('main-app').style.display     = view === 'main'   ? 'block' : 'none';
+  document.getElementById('task-view').style.display    = view === 'task'   ? 'block' : 'none';
+  document.getElementById('report-view').style.display  = view === 'report' ? 'block' : 'none';
+  document.getElementById('budget-view').style.display  = view === 'budget' ? 'block' : 'none';
+  document.getElementById('fab').style.display          = view === 'main'   ? 'flex'  : 'none';
+  ['main','task','report','budget'].forEach(v => {
+    document.getElementById('nav-' + v)?.classList.toggle('active', view === v);
+  });
+  if (view === 'budget') { renderBudgetView(); renderGoals(); }
+  if (view === 'task')   { renderTaskView(); renderRecurring(); }
+  if (view === 'report') renderReport();
 }
 
 // ── API ──────────────────────────────────────────────────────────
@@ -872,18 +1251,23 @@ async function api(params) {
 async function loadData() {
   showLoading();
   try {
-    const [txRes, bdRes, tkRes] = await Promise.all([
+    const [txRes, bdRes, tkRes, recRes, goalRes] = await Promise.all([
       api({ action: 'get' }),
       api({ action: 'getBudgets' }),
-      api({ action: 'getTasks' })
+      api({ action: 'getTasks' }),
+      api({ action: 'getRecurring' }),
+      api({ action: 'getGoals' })
     ]);
     if (txRes.error) throw new Error(txRes.error);
-    txAll      = txRes.transactions || [];
-    budgetsAll = bdRes.budgets      || [];
-    tasksAll   = tkRes.tasks        || [];
+    txAll        = txRes.transactions || [];
+    budgetsAll   = bdRes.budgets      || [];
+    tasksAll     = tkRes.tasks        || [];
+    recurringAll = recRes.recurring   || [];
+    goalsAll     = goalRes.goals      || [];
     render();
-    if (curView === 'budget') renderBudgetView();
-    if (curView === 'task')   renderTaskView();
+    if (curView === 'budget') { renderBudgetView(); renderGoals(); }
+    if (curView === 'task')   { renderTaskView(); renderRecurring(); }
+    if (curView === 'report') renderReport();
     updateTaskBadge();
   } catch (e) {
     console.error(e);
@@ -951,8 +1335,16 @@ function txForMonth() {
 }
 
 function filtered(monthTx) {
-  if (curFilter === 'all') return monthTx;
-  return monthTx.filter(t => t.type === curFilter);
+  let txs = curFilter === 'all' ? monthTx : monthTx.filter(t => t.type === curFilter);
+  if (searchQuery) {
+    txs = txs.filter(t => {
+      const cat = ALL_CATS.find(c => c.k === t.category);
+      return (cat?.l || t.category).toLowerCase().includes(searchQuery) ||
+             (t.description || '').toLowerCase().includes(searchQuery) ||
+             String(t.amount).includes(searchQuery);
+    });
+  }
+  return txs;
 }
 
 function updateSummary(monthTx) {
@@ -1009,7 +1401,9 @@ function txHTML(t) {
 
 // ── Charts ───────────────────────────────────────────────────────
 function renderChart(monthTx) {
-  chartMode === 'cat' ? renderCatChart(monthTx) : renderMonChart();
+  if (chartMode === 'cat') renderCatChart(monthTx);
+  else if (chartMode === 'mon') renderMonChart();
+  else renderCmpChart(monthTx);
 }
 
 function renderCatChart(monthTx) {
@@ -1106,7 +1500,30 @@ function switchChart(mode) {
   chartMode = mode;
   document.getElementById('tab-cat').classList.toggle('active', mode === 'cat');
   document.getElementById('tab-mon').classList.toggle('active', mode === 'mon');
+  document.getElementById('tab-cmp').classList.toggle('active', mode === 'cmp');
   renderChart(txForMonth());
+}
+
+function renderCmpChart(monthTx) {
+  const prevMonth = curMonth === 0 ? 11 : curMonth - 1;
+  const prevYear  = curMonth === 0 ? curYear - 1 : curYear;
+  const prevTx    = txAll.filter(t => { const d = new Date(t.date); return d.getMonth() === prevMonth && d.getFullYear() === prevYear; });
+  if (!showCanvas(true)) return;
+  const labels   = ['รายรับ', 'รายจ่าย'];
+  const curInc   = sum(monthTx, 'income');  const curExp  = sum(monthTx, 'expense');
+  const prevInc  = sum(prevTx,  'income');  const prevExp = sum(prevTx,  'expense');
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(document.getElementById('chart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: TH_MONTHS[prevMonth], data: [prevInc, prevExp], backgroundColor: ['#10B98144','#EF444444'], borderColor: ['#10B981','#EF4444'], borderWidth: 1.5, borderRadius: 6 },
+        { label: TH_MONTHS[curMonth],  data: [curInc,  curExp],  backgroundColor: ['#10B981aa','#EF4444aa'], borderColor: ['#10B981','#EF4444'], borderWidth: 1.5, borderRadius: 6 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sarabun' }, boxWidth: 12 } } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Sarabun' } } }, y: { ticks: { font: { family: 'Sarabun', size: 10 }, callback: v => v >= 1000 ? (v/1000)+'k' : v } } } }
+  });
 }
 
 // ── Month Nav ────────────────────────────────────────────────────
@@ -1165,6 +1582,380 @@ function renderCatGrid() {
 }
 
 function selCatFn(k) { selCat = k; renderCatGrid(); }
+
+// ── Dark Mode ─────────────────────────────────────────────────────
+function toggleDark(on) {
+  if (on) { document.body.setAttribute('data-dark', ''); localStorage.setItem('theme', 'dark'); }
+  else    { document.body.removeAttribute('data-dark');   localStorage.setItem('theme', 'light'); }
+}
+
+// ── Search ────────────────────────────────────────────────────────
+function onSearch(q) {
+  searchQuery = q.trim().toLowerCase();
+  document.getElementById('search-clear').style.display = q ? 'block' : 'none';
+  render();
+}
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  onSearch('');
+}
+
+// ── Export CSV ────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['วันที่','ประเภท','หมวดหมู่','รายละเอียด','จำนวน']];
+  [...txAll].sort((a,b) => a.date.localeCompare(b.date)).forEach(t => {
+    const cat = ALL_CATS.find(c => c.k === t.category);
+    rows.push([t.date, t.type === 'income' ? 'รายรับ' : 'รายจ่าย',
+      cat ? cat.l : t.category, t.description, t.amount]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `expense-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('📥 Export สำเร็จ');
+}
+
+// ── Custom Categories ─────────────────────────────────────────────
+function mergeCustomCats() {
+  const existing = CATS.expense.map(c => c.k);
+  customCats.forEach(c => { if (!existing.includes(c.k)) CATS.expense.push(c); });
+}
+function openCustomCatModal() { document.getElementById('custom-cat-overlay').classList.add('show'); }
+function closeCustomCatModal() { document.getElementById('custom-cat-overlay').classList.remove('show'); }
+function saveCustomCat() {
+  const emoji = document.getElementById('ccat-emoji').value.trim() || '📌';
+  const name  = document.getElementById('ccat-name').value.trim();
+  if (!name) { toast('❌ ใส่ชื่อหมวดหมู่'); return; }
+  const cat = { k: 'custom_' + Date.now(), l: name, i: emoji };
+  customCats.push(cat);
+  CATS.expense.push(cat);
+  localStorage.setItem('customCats', JSON.stringify(customCats));
+  closeCustomCatModal();
+  renderCustomCatList();
+  toast('✅ เพิ่มหมวดหมู่แล้ว');
+}
+function deleteCustomCat(k) {
+  customCats = customCats.filter(c => c.k !== k);
+  const idx  = CATS.expense.findIndex(c => c.k === k);
+  if (idx >= 0) CATS.expense.splice(idx, 1);
+  localStorage.setItem('customCats', JSON.stringify(customCats));
+  renderCustomCatList();
+}
+function renderCustomCatList() {
+  document.getElementById('custom-cat-list').innerHTML = customCats.length === 0
+    ? '<div style="font-size:13px;color:var(--sub);margin-bottom:8px">ยังไม่มีหมวดหมู่ custom</div>'
+    : customCats.map(c => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:20px">${c.i}</span>
+        <span style="flex:1;font-size:13px;font-weight:600">${c.l}</span>
+        <button onclick="deleteCustomCat('${c.k}')" style="background:var(--expense-light);color:var(--expense);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:12px">ลบ</button>
+      </div>`).join('');
+}
+
+// ── PIN ───────────────────────────────────────────────────────────
+function initSettingsUI() {
+  const darkOn = localStorage.getItem('theme') === 'dark';
+  const toggle = document.getElementById('dark-toggle');
+  if (toggle) toggle.checked = darkOn;
+  updatePinStatus();
+  renderCustomCatList();
+}
+function updatePinStatus() {
+  const pin = localStorage.getItem('pin');
+  document.getElementById('pin-status').textContent = pin ? '✅ PIN ตั้งแล้ว' : 'ยังไม่มี PIN';
+  document.getElementById('btn-clr-pin').style.display = pin ? 'block' : 'none';
+}
+function startSetPin() {
+  pinMode = 'set1'; pinBuffer = '';
+  document.querySelector('.pin-title').textContent = 'ตั้ง PIN ใหม่';
+  document.getElementById('pin-overlay').style.display = 'flex';
+  updatePinDots();
+  document.getElementById('set-overlay').classList.remove('show');
+}
+function clearPin() {
+  localStorage.removeItem('pin');
+  updatePinStatus();
+  toast('🔓 ยกเลิก PIN แล้ว');
+}
+function pinKey(k) {
+  if (k === 'clr') { pinBuffer = ''; updatePinDots(); return; }
+  if (k === 'del') { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); return; }
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += k;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(processPinInput, 200);
+}
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('pd' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+function processPinInput() {
+  if (pinMode === 'unlock') {
+    if (pinBuffer === localStorage.getItem('pin')) {
+      document.getElementById('pin-overlay').style.display = 'none';
+      document.getElementById('pin-err').style.opacity = '0';
+      initApp();
+    } else {
+      document.getElementById('pin-err').style.opacity = '1';
+      pinBuffer = ''; updatePinDots();
+    }
+  } else if (pinMode === 'set1') {
+    pinTemp = pinBuffer; pinBuffer = '';
+    document.querySelector('.pin-title').textContent = 'ยืนยัน PIN อีกครั้ง';
+    updatePinDots(); pinMode = 'set2';
+  } else if (pinMode === 'set2') {
+    if (pinBuffer === pinTemp) {
+      localStorage.setItem('pin', pinBuffer);
+      document.getElementById('pin-overlay').style.display = 'none';
+      pinMode = 'unlock'; pinBuffer = '';
+      updatePinStatus();
+      toast('✅ ตั้ง PIN สำเร็จ');
+    } else {
+      document.getElementById('pin-err').style.opacity = '1';
+      pinBuffer = ''; updatePinDots();
+      document.querySelector('.pin-title').textContent = 'ตั้ง PIN ใหม่';
+      pinMode = 'set1';
+    }
+  }
+}
+
+// ── Report View ───────────────────────────────────────────────────
+function changeRepYear(d) { repYear += d; renderReport(); }
+
+function renderReport() {
+  document.getElementById('rep-year-lbl').textContent = 'ปี ' + (repYear + 543);
+  const yearTx  = txAll.filter(t => new Date(t.date).getFullYear() === repYear);
+  const income  = yearTx.filter(t => t.type === 'income').reduce((s,t)  => s + t.amount, 0);
+  const expense = yearTx.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+  const net     = income - expense;
+
+  document.getElementById('rep-cards').innerHTML = `
+    <div class="rep-card"><div class="rep-lbl">รายรับรวม</div>
+      <div class="rep-amt" style="color:var(--income)">${fmt(income)}</div></div>
+    <div class="rep-card"><div class="rep-lbl">รายจ่ายรวม</div>
+      <div class="rep-amt" style="color:var(--expense)">${fmt(expense)}</div></div>
+    <div class="rep-card"><div class="rep-lbl">คงเหลือ</div>
+      <div class="rep-amt" style="color:${net>=0?'var(--income)':'var(--expense)'}">${fmt(Math.abs(net))}</div></div>`;
+
+  // 12-month bar chart
+  const months = TH_MONTHS_S;
+  const expByMonth = months.map((_,i) => {
+    const m = String(i+1).padStart(2,'0');
+    return yearTx.filter(t => t.type==='expense' && t.date.startsWith(`${repYear}-${m}`))
+                 .reduce((s,t) => s+t.amount, 0);
+  });
+  const incByMonth = months.map((_,i) => {
+    const m = String(i+1).padStart(2,'0');
+    return yearTx.filter(t => t.type==='income' && t.date.startsWith(`${repYear}-${m}`))
+                 .reduce((s,t) => s+t.amount, 0);
+  });
+
+  if (repChart) repChart.destroy();
+  repChart = new Chart(document.getElementById('rep-chart'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'รายรับ',  data: incByMonth, backgroundColor: '#10B98166', borderColor: '#10B981', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'รายจ่าย', data: expByMonth, backgroundColor: '#EF444466', borderColor: '#EF4444', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sarabun' }, boxWidth: 12 } } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Sarabun', size: 10 } } }, y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { family: 'Sarabun', size: 10 }, callback: v => v >= 1000 ? (v/1000)+'k' : v } } } }
+  });
+
+  // Top categories
+  const catTotals = {};
+  yearTx.filter(t => t.type === 'expense').forEach(t => {
+    catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
+  });
+  const sorted = Object.entries(catTotals).sort((a,b) => b[1]-a[1]).slice(0,5);
+  const max    = sorted[0]?.[1] || 1;
+  document.getElementById('top-cats-list').innerHTML = sorted.length === 0
+    ? '<div style="color:var(--sub);font-size:13px;text-align:center;padding:16px">ยังไม่มีข้อมูล</div>'
+    : sorted.map(([k,v]) => {
+        const cat = ALL_CATS.find(c => c.k === k) || { l: k, i: '📌' };
+        return `<div class="top-cat-item" style="margin-bottom:12px">
+          <span style="font-size:20px;width:28px">${cat.i}</span>
+          <span style="font-size:13px;font-weight:600;width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat.l}</span>
+          <div class="top-cat-bar-wrap"><div class="top-cat-bar" style="width:${Math.round(v/max*100)}%"></div></div>
+          <span class="top-cat-pct">${fmt(v)}</span>
+        </div>`;
+      }).join('');
+}
+
+// ── Recurring ─────────────────────────────────────────────────────
+function renderRecurring() {
+  const list = document.getElementById('recur-list');
+  if (recurringAll.length === 0) {
+    list.innerHTML = '<div class="no-budget-hint"><div style="font-size:32px;opacity:.4">🔄</div><div>ยังไม่มีรายจ่ายประจำ</div></div>';
+    return;
+  }
+  list.innerHTML = recurringAll.map(r => {
+    const cat = ALL_CATS.find(c => c.k === r.category) || { l: r.category, i: '📌' };
+    return `<div class="rec-card">
+      <span class="rec-icon">${cat.i}</span>
+      <div class="rec-info">
+        <div class="rec-name">${r.description || cat.l}</div>
+        <div class="rec-meta">${cat.l} · ทุกวันที่ ${r.day}</div>
+      </div>
+      <div class="rec-right">
+        <div class="rec-amt">${fmt(r.amount)}</div>
+        <button class="btn-del-rec" onclick="deleteRecur('${r.id}')">🗑 ลบ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openRecurModal() {
+  selRecurCat = '';
+  document.getElementById('recur-amt').value  = '';
+  document.getElementById('recur-desc').value = '';
+  document.getElementById('recur-day').value  = '';
+  renderRecurCatGrid();
+  document.getElementById('recur-overlay').classList.add('show');
+}
+function closeRecurModal() { document.getElementById('recur-overlay').classList.remove('show'); }
+function renderRecurCatGrid() {
+  document.getElementById('recur-cat-grid').innerHTML = CATS.expense.map(c => `
+    <button class="cat-btn ${selRecurCat===c.k?'sel':''}" onclick="selRecurCatFn('${c.k}')">
+      <span class="ci">${c.i}</span><span>${c.l}</span>
+    </button>`).join('');
+}
+function selRecurCatFn(k) { selRecurCat = k; renderRecurCatGrid(); }
+async function saveRecurring() {
+  const amount = parseFloat(document.getElementById('recur-amt').value);
+  const day    = parseInt(document.getElementById('recur-day').value);
+  if (!selRecurCat)            { toast('❌ เลือกหมวดหมู่'); return; }
+  if (!amount || amount <= 0)  { toast('❌ ใส่จำนวนเงิน'); return; }
+  if (!day || day < 1 || day > 31) { toast('❌ ใส่วันที่ 1-31'); return; }
+  const desc = document.getElementById('recur-desc').value.trim();
+  const btn  = document.getElementById('recur-save-btn');
+  btn.textContent = 'กำลังบันทึก...'; btn.disabled = true;
+  try {
+    const res = await api({ action: 'addRecurring', category: selRecurCat, description: desc, amount, day });
+    if (res.error) throw new Error(res.error);
+    recurringAll.push({ id: res.id, category: selRecurCat, description: desc, amount, day });
+    closeRecurModal(); renderRecurring(); toast('✅ เพิ่มรายจ่ายประจำแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.textContent = 'บันทึก'; btn.disabled = false; }
+}
+async function deleteRecur(id) {
+  await api({ action: 'deleteRecurring', id });
+  recurringAll = recurringAll.filter(r => r.id !== id);
+  renderRecurring(); toast('🗑 ลบแล้ว');
+}
+async function applyRecurring() {
+  if (recurringAll.length === 0) { toast('ยังไม่มีรายจ่ายประจำ'); return; }
+  const now   = new Date();
+  const month = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  let added = 0;
+  for (const r of recurringAll) {
+    const exists = tasksAll.some(t => t.month === month && t.category === r.category && t.amount === r.amount && t.description === (r.description || ''));
+    if (!exists) {
+      const res = await api({ action: 'addTask', month, category: r.category, description: r.description || '', amount: r.amount });
+      if (!res.error) { tasksAll.push({ id: res.id, month, category: r.category, description: r.description || '', amount: r.amount }); added++; }
+    }
+  }
+  renderTaskView(); updateTaskBadge();
+  toast(added > 0 ? `✅ สร้าง ${added} แผนแล้ว` : 'ทุกรายการมีแผนแล้ว');
+}
+
+// ── Savings Goals ─────────────────────────────────────────────────
+function renderGoals() {
+  const list = document.getElementById('goal-list');
+  if (goalsAll.length === 0) {
+    list.innerHTML = '<div class="no-budget-hint"><div style="font-size:32px;opacity:.4">🎯</div><div>ยังไม่มีเป้าหมายการออม</div></div>';
+    return;
+  }
+  list.innerHTML = goalsAll.map(g => {
+    const pct = g.target > 0 ? Math.min(g.saved / g.target, 1) : 0;
+    const dl  = g.deadline ? TH_MONTHS[parseInt(g.deadline.split('-')[1])-1] + ' ' + (parseInt(g.deadline.split('-')[0])+543) : '';
+    return `<div class="goal-card">
+      <div class="goal-header">
+        <div class="goal-dot" style="background:${g.color}"></div>
+        <div class="goal-name">${g.name}</div>
+        ${dl ? `<div class="goal-deadline">📅 ${dl}</div>` : ''}
+      </div>
+      <div class="goal-amounts">
+        <span>ออมแล้ว ${fmt(g.saved)}</span>
+        <span>เป้า ${fmt(g.target)}</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar ok" style="width:${Math.round(pct*100)}%;background:${g.color}"></div>
+      </div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px">${Math.round(pct*100)}% · เหลือ ${fmt(g.target - g.saved)}</div>
+      <div class="goal-actions">
+        <button class="btn-deposit" onclick="openDeposit('${g.id}','${g.name.replace(/'/g,"\\'")}',${g.saved})">💰 ฝากเงิน</button>
+        <button class="btn-del-goal" onclick="deleteGoal('${g.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openGoalModal() {
+  curGoalColor = '#6366F1';
+  document.getElementById('goal-name').value     = '';
+  document.getElementById('goal-target').value   = '';
+  document.getElementById('goal-deadline').value = '';
+  ['#6366F1','#10B981','#F59E0B','#EF4444','#EC4899'].forEach((c,i) => {
+    document.getElementById('gc-'+i).style.borderColor = c === curGoalColor ? '#333' : 'transparent';
+  });
+  document.getElementById('goal-overlay').classList.add('show');
+}
+function closeGoalModal() { document.getElementById('goal-overlay').classList.remove('show'); }
+function selGoalColor(c) {
+  curGoalColor = c;
+  ['#6366F1','#10B981','#F59E0B','#EF4444','#EC4899'].forEach((col,i) => {
+    document.getElementById('gc-'+i).style.borderColor = col === c ? '#333' : 'transparent';
+  });
+}
+async function saveGoal() {
+  const name   = document.getElementById('goal-name').value.trim();
+  const target = parseFloat(document.getElementById('goal-target').value);
+  const dl     = document.getElementById('goal-deadline').value;
+  if (!name)              { toast('❌ ใส่ชื่อเป้าหมาย'); return; }
+  if (!target || target <= 0) { toast('❌ ใส่จำนวนเงิน'); return; }
+  const btn = document.getElementById('goal-save-btn');
+  btn.textContent = 'กำลังบันทึก...'; btn.disabled = true;
+  try {
+    const res = await api({ action: 'addGoal', name, target, deadline: dl, color: curGoalColor });
+    if (res.error) throw new Error(res.error);
+    goalsAll.push({ id: res.id, name, target, saved: 0, deadline: dl, color: curGoalColor });
+    closeGoalModal(); renderGoals(); toast('✅ ตั้งเป้าหมายแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.textContent = 'บันทึกเป้าหมาย'; btn.disabled = false; }
+}
+function openDeposit(id, name, current) {
+  depositGoalId = id;
+  document.getElementById('deposit-title').textContent = `ฝากเงิน — ${name}`;
+  document.getElementById('deposit-amt').value = '';
+  document.getElementById('deposit-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('deposit-amt').focus(), 300);
+}
+function closeDepositModal() { document.getElementById('deposit-overlay').classList.remove('show'); }
+async function saveDeposit() {
+  const add  = parseFloat(document.getElementById('deposit-amt').value);
+  if (!add || add <= 0) { toast('❌ ใส่จำนวนเงิน'); return; }
+  const goal = goalsAll.find(g => g.id === depositGoalId);
+  if (!goal) return;
+  const newSaved = goal.saved + add;
+  const btn = document.getElementById('deposit-save-btn');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await api({ action: 'updateGoal', id: depositGoalId, saved: newSaved });
+    if (res.error) throw new Error(res.error);
+    goal.saved = newSaved;
+    closeDepositModal(); renderGoals();
+    toast(newSaved >= goal.target ? '🎉 ถึงเป้าหมายแล้ว!' : `✅ ออมแล้ว ${fmt(newSaved)}`);
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.textContent = 'บันทึก'; btn.disabled = false; }
+}
+async function deleteGoal(id) {
+  await api({ action: 'deleteGoal', id });
+  goalsAll = goalsAll.filter(g => g.id !== id);
+  renderGoals(); toast('🗑 ลบแล้ว');
+}
 
 // ── Task View ─────────────────────────────────────────────────────
 

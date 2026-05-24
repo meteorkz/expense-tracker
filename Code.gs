@@ -26,9 +26,16 @@ function doGet(e) {
       case 'deleteBudget':    result = deleteBudget(p.id);        break;
       case 'clearBudgets':    result = clearBudgets();            break;
       case 'clearTransactions': result = clearTransactions();     break;
-      case 'getTasks':    result = getTasks();           break;
-      case 'addTask':     result = addTask(p);           break;
-      case 'deleteTask':  result = deleteTaskById(p.id); break;
+      case 'getTasks':      result = getTasks();              break;
+      case 'addTask':       result = addTask(p);              break;
+      case 'deleteTask':    result = deleteTaskById(p.id);    break;
+      case 'getRecurring':    result = getRecurring();              break;
+      case 'addRecurring':    result = addRecurring(p);             break;
+      case 'deleteRecurring': result = deleteRecurringById(p.id);   break;
+      case 'getGoals':      result = getGoals();              break;
+      case 'addGoal':       result = addGoal(p);              break;
+      case 'updateGoal':    result = updateGoal(p);           break;
+      case 'deleteGoal':    result = deleteGoalById(p.id);    break;
       default:             result = { error: 'Unknown action: ' + p.action };
     }
   } catch (err) {
@@ -235,6 +242,111 @@ function getOrCreateTaskSheet() {
     sheet.getRange(2, 2, 1000, 1).setNumberFormat('@');
     sheet.setColumnWidth(1, 160); sheet.setColumnWidth(2, 90);
     sheet.setColumnWidth(3, 100); sheet.setColumnWidth(4, 200); sheet.setColumnWidth(5, 100);
+  }
+  return sheet;
+}
+
+// ── Recurring Sheet ───────────────────────────────────────────────
+
+const RECURRING_SHEET = 'Recurring';
+
+function getRecurring() {
+  const sheet = getOrCreateRecurringSheet();
+  const data  = sheet.getDataRange().getValues();
+  if (data.length <= 1) return { recurring: [] };
+  return { recurring: data.slice(1).filter(r => r[0]).map(r => ({
+    id:          String(r[0]),
+    category:    String(r[1]),
+    description: String(r[2]),
+    amount:      Number(r[3]),
+    day:         Number(r[4])
+  }))};
+}
+
+function addRecurring(p) {
+  const sheet = getOrCreateRecurringSheet();
+  const id    = Date.now().toString();
+  sheet.appendRow([id, p.category, p.description || '', parseFloat(p.amount) || 0, parseInt(p.day) || 1]);
+  return { success: true, id };
+}
+
+function deleteRecurringById(id) {
+  const sheet = getOrCreateRecurringSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) { sheet.deleteRow(i + 1); return { success: true }; }
+  }
+  return { error: 'Not found' };
+}
+
+function getOrCreateRecurringSheet() {
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let   sheet = ss.getSheetByName(RECURRING_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(RECURRING_SHEET);
+    sheet.appendRow(['ID', 'Category', 'Description', 'Amount', 'DayOfMonth']);
+    sheet.setFrozenRows(1);
+    const hr = sheet.getRange(1, 1, 1, 5);
+    hr.setBackground('#7C3AED'); hr.setFontColor('#FFFFFF'); hr.setFontWeight('bold');
+  }
+  return sheet;
+}
+
+// ── Goals Sheet ───────────────────────────────────────────────────
+
+const GOALS_SHEET = 'Goals';
+
+function getGoals() {
+  const sheet = getOrCreateGoalsSheet();
+  const data  = sheet.getDataRange().getValues();
+  if (data.length <= 1) return { goals: [] };
+  return { goals: data.slice(1).filter(r => r[0]).map(r => ({
+    id:       String(r[0]),
+    name:     String(r[1]),
+    target:   Number(r[2]),
+    saved:    Number(r[3]),
+    deadline: String(r[4]),
+    color:    String(r[5])
+  }))};
+}
+
+function addGoal(p) {
+  const sheet = getOrCreateGoalsSheet();
+  const id    = Date.now().toString();
+  sheet.appendRow([id, p.name, parseFloat(p.target) || 0, 0, p.deadline || '', p.color || '#6366F1']);
+  return { success: true, id };
+}
+
+function updateGoal(p) {
+  const sheet = getOrCreateGoalsSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(p.id)) {
+      sheet.getRange(i + 1, 4).setValue(parseFloat(p.saved));
+      return { success: true };
+    }
+  }
+  return { error: 'Not found' };
+}
+
+function deleteGoalById(id) {
+  const sheet = getOrCreateGoalsSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) { sheet.deleteRow(i + 1); return { success: true }; }
+  }
+  return { error: 'Not found' };
+}
+
+function getOrCreateGoalsSheet() {
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let   sheet = ss.getSheetByName(GOALS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(GOALS_SHEET);
+    sheet.appendRow(['ID', 'Name', 'TargetAmount', 'SavedAmount', 'Deadline', 'Color']);
+    sheet.setFrozenRows(1);
+    const hr = sheet.getRange(1, 1, 1, 6);
+    hr.setBackground('#D97706'); hr.setFontColor('#FFFFFF'); hr.setFontWeight('bold');
   }
   return sheet;
 }
