@@ -26,6 +26,9 @@ function doGet(e) {
       case 'deleteBudget':    result = deleteBudget(p.id);        break;
       case 'clearBudgets':    result = clearBudgets();            break;
       case 'clearTransactions': result = clearTransactions();     break;
+      case 'getTasks':    result = getTasks();           break;
+      case 'addTask':     result = addTask(p);           break;
+      case 'deleteTask':  result = deleteTaskById(p.id); break;
       default:             result = { error: 'Unknown action: ' + p.action };
     }
   } catch (err) {
@@ -175,6 +178,63 @@ function getOrCreateBudgetSheet() {
     hr.setBackground('#4F46E5'); hr.setFontColor('#FFFFFF'); hr.setFontWeight('bold');
     sheet.setColumnWidth(1, 160); sheet.setColumnWidth(2, 100);
     sheet.setColumnWidth(3, 90);  sheet.setColumnWidth(4, 120); sheet.setColumnWidth(5, 100);
+  }
+  return sheet;
+}
+
+// ── Tasks Sheet ───────────────────────────────────────────────────
+
+const TASKS_SHEET = 'Tasks';
+
+function getTasks() {
+  const sheet = getOrCreateTaskSheet();
+  const data  = sheet.getDataRange().getValues();
+  if (data.length <= 1) return { tasks: [] };
+  const tasks = data.slice(1).filter(r => r[0]).map(r => ({
+    id:          String(r[0]),
+    month:       String(r[1]),
+    category:    String(r[2]),
+    description: String(r[3]),
+    amount:      Number(r[4])
+  }));
+  return { tasks };
+}
+
+function addTask(p) {
+  const sheet = getOrCreateTaskSheet();
+  const id    = Date.now().toString();
+  const row   = sheet.getLastRow() + 1;
+  sheet.getRange(row, 2).setNumberFormat('@');
+  sheet.getRange(row, 1, 1, 5).setValues([[
+    id, p.month, p.category, p.description || '', parseFloat(p.amount) || 0
+  ]]);
+  return { success: true, id };
+}
+
+function deleteTaskById(id) {
+  const sheet = getOrCreateTaskSheet();
+  const data  = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id)) {
+      sheet.deleteRow(i + 1);
+      return { success: true };
+    }
+  }
+  return { error: 'Not found' };
+}
+
+function getOrCreateTaskSheet() {
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let   sheet = ss.getSheetByName(TASKS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(TASKS_SHEET);
+    sheet.appendRow(['ID', 'Month', 'Category', 'Description', 'Amount']);
+    sheet.setFrozenRows(1);
+    const hr = sheet.getRange(1, 1, 1, 5);
+    hr.setBackground('#0F766E'); hr.setFontColor('#FFFFFF'); hr.setFontWeight('bold');
+    sheet.getRange(2, 2, 1000, 1).setNumberFormat('@');
+    sheet.setColumnWidth(1, 160); sheet.setColumnWidth(2, 90);
+    sheet.setColumnWidth(3, 100); sheet.setColumnWidth(4, 200); sheet.setColumnWidth(5, 100);
   }
   return sheet;
 }

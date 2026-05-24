@@ -382,6 +382,83 @@
       padding: 24px; color: var(--sub); font-size: 13px; gap: 8px; text-align: center;
     }
 
+    /* ── Task View ───────────────────────────────────── */
+    #task-view { display: none; padding-bottom: 100px; }
+    .task-header {
+      background: linear-gradient(135deg, #0F766E 0%, #0891B2 100%);
+      padding: 20px 20px 40px;
+    }
+    .task-year-nav {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+    }
+    .task-year-nav button {
+      background: rgba(255,255,255,.15); border: none; border-radius: 8px;
+      width: 32px; height: 32px; color: white; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .task-year-lbl { font-size: 17px; font-weight: 700; color: white; }
+
+    .month-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      padding: 14px; background: var(--card); border-radius: 16px;
+      margin: -22px 14px 10px; position: relative; z-index: 10; box-shadow: var(--shadow);
+    }
+    .month-chip {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 10px 4px; border-radius: 12px; border: 2px solid transparent;
+      background: transparent; cursor: pointer;
+      font-family: 'Sarabun', sans-serif; transition: all .2s;
+    }
+    .month-chip.selected { background: #0F766E; }
+    .month-chip.selected .mc-name { color: white; }
+    .month-chip.selected .mc-dot  { background: white; opacity: 1; }
+    .month-chip.is-now { border-color: #0F766E; }
+    .month-chip:not(.selected):hover { background: var(--bg); }
+    .mc-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .mc-dot  { width: 5px; height: 5px; border-radius: 50%; background: #0F766E; opacity: 0; transition: opacity .2s; }
+    .mc-dot.has { opacity: 1; }
+    .mc-count { font-size: 9px; color: #0F766E; font-weight: 700; }
+    .month-chip.selected .mc-count { color: rgba(255,255,255,.8); }
+
+    .task-card {
+      background: var(--card); border-radius: 14px; padding: 14px 16px;
+      box-shadow: var(--shadow); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .tc-icon { font-size: 26px; line-height: 1; }
+    .tc-info { flex: 1; min-width: 0; }
+    .tc-desc { font-size: 14px; font-weight: 600; margin-bottom: 2px;
+               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tc-cat  { font-size: 12px; color: var(--sub); }
+    .tc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+    .tc-amt  { font-size: 15px; font-weight: 700; color: var(--expense); }
+    .btn-convert { background: #DCFCE7; color: #15803D; border: none; border-radius: 8px;
+      padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: 'Sarabun', sans-serif; white-space: nowrap; }
+    .btn-del-task { background: var(--expense-light); color: var(--expense); border: none;
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer;
+      font-family: 'Sarabun', sans-serif; }
+
+    .task-alert {
+      background: linear-gradient(135deg, #0F766E, #0891B2);
+      color: white; border-radius: 14px; padding: 14px 16px;
+      margin: 10px 14px 0; display: flex; align-items: center; gap: 12px;
+      cursor: pointer; box-shadow: var(--shadow);
+    }
+    .ta-icon { font-size: 24px; }
+    .ta-text { flex: 1; }
+    .ta-title { font-size: 14px; font-weight: 700; }
+    .ta-sub   { font-size: 12px; opacity: .85; }
+    .ta-arrow { font-size: 20px; opacity: .7; }
+
+    .nav-badge {
+      position: absolute; top: 3px; right: 6px;
+      background: var(--expense); color: white; border-radius: 99px;
+      font-size: 9px; font-weight: 700; padding: 1px 5px; min-width: 16px;
+      text-align: center; line-height: 1.6; display: none;
+    }
+    .nav-btn { position: relative; }
+
     /* Budget Modal */
     .budget-modal-cat {
       display: flex; gap: 10px; align-items: center; background: var(--bg);
@@ -458,6 +535,13 @@
     </div>
   </div>
 
+  <!-- Task Alert Banner -->
+  <div class="task-alert" id="task-alert-banner" style="display:none" onclick="switchView('task')">
+    <span class="ta-icon">📅</span>
+    <div class="ta-text" id="task-alert-text"></div>
+    <span class="ta-arrow">›</span>
+  </div>
+
   <!-- Chart -->
   <div class="section">
     <div class="chart-card">
@@ -532,11 +616,41 @@
   </div>
 </div>
 
+<!-- ─── Task View ────────────────────────────────────────────────── -->
+<div id="task-view">
+  <div class="task-header">
+    <div class="header-top">
+      <div class="app-title">📅 แผนล่วงหน้า</div>
+      <button class="btn-icon" onclick="openSettings()">⚙️</button>
+    </div>
+    <div class="task-year-nav">
+      <button onclick="changeTaskYear(-1)">‹</button>
+      <div class="task-year-lbl" id="task-year-lbl"></div>
+      <button onclick="changeTaskYear(1)">›</button>
+    </div>
+  </div>
+
+  <div class="month-grid" id="month-grid"></div>
+
+  <div class="section" style="margin-top:4px">
+    <div class="section-header">
+      <div class="section-title" id="task-month-title">เลือกเดือน</div>
+      <button class="btn-icon" style="background:var(--balance);color:white;border-radius:10px;width:32px;height:32px;font-size:18px" onclick="openTaskModal()">+</button>
+    </div>
+    <div id="task-list"></div>
+  </div>
+</div>
+
 <!-- ─── Bottom Nav ───────────────────────────────────────────────── -->
 <nav class="bottom-nav" id="bottom-nav">
   <button class="nav-btn active" id="nav-main" onclick="switchView('main')">
     <span class="nav-icon">💰</span>
     <span class="nav-label">รายการ</span>
+  </button>
+  <button class="nav-btn" id="nav-task" onclick="switchView('task')">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">แผนล่วงหน้า</span>
+    <span class="nav-badge" id="task-nav-badge"></span>
   </button>
   <button class="nav-btn" id="nav-budget" onclick="switchView('budget')">
     <span class="nav-icon">📋</span>
@@ -590,6 +704,28 @@
     <input id="date-in" class="form-in" type="date">
 
     <button class="btn-primary" id="save-btn" onclick="saveTransaction()">บันทึก</button>
+  </div>
+</div>
+
+<!-- ─── Task Modal ───────────────────────────────────────────────── -->
+<div class="overlay" id="task-overlay" onclick="handleTaskOverlay(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">เพิ่มแผนรายจ่าย</div>
+      <button class="btn-close" onclick="closeTaskModal()">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <select id="task-month-sel" style="flex:1;padding:10px 12px;border:2px solid var(--border);border-radius:12px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--text);background:white;outline:none"></select>
+      <select id="task-year-sel" style="width:94px;padding:10px 8px;border:2px solid var(--border);border-radius:12px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--text);background:white;outline:none"></select>
+    </div>
+    <div class="form-lbl">หมวดหมู่</div>
+    <div class="cat-grid" id="tm-cat-grid"></div>
+    <input id="task-desc" class="form-in" type="text" placeholder="รายละเอียด เช่น ค่าประกันรถ (ไม่บังคับ)" style="margin-top:8px">
+    <div class="amount-wrap">
+      <span class="currency">฿</span>
+      <input id="task-amt" class="amount-input" type="number" placeholder="จำนวนเงิน" inputmode="decimal">
+    </div>
+    <button class="save-btn" id="task-save-btn" onclick="saveTask()">บันทึกแผน</button>
   </div>
 </div>
 
@@ -666,7 +802,15 @@ let budgetType   = 'monthly';   // 'monthly' | 'yearly'
 let budgetMonth  = new Date().getMonth();
 let budgetYear   = new Date().getFullYear();
 let selBudgetCat = '';
-let curView      = 'main';      // 'main' | 'budget'
+let curView      = 'main';      // 'main' | 'task' | 'budget'
+
+// Task state
+let tasksAll    = [];
+let taskYear    = new Date().getFullYear();
+let selTaskMonth = new Date().getMonth();
+let selTaskCat  = '';
+
+const TH_MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
 // ── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -706,11 +850,14 @@ function showApp() {
 function switchView(view) {
   curView = view;
   document.getElementById('main-app').style.display    = view === 'main'   ? 'block' : 'none';
+  document.getElementById('task-view').style.display   = view === 'task'   ? 'block' : 'none';
   document.getElementById('budget-view').style.display = view === 'budget' ? 'block' : 'none';
   document.getElementById('fab').style.display         = view === 'main'   ? 'flex'  : 'none';
   document.getElementById('nav-main').classList.toggle('active',   view === 'main');
+  document.getElementById('nav-task').classList.toggle('active',   view === 'task');
   document.getElementById('nav-budget').classList.toggle('active', view === 'budget');
   if (view === 'budget') renderBudgetView();
+  if (view === 'task')   renderTaskView();
 }
 
 // ── API ──────────────────────────────────────────────────────────
@@ -725,15 +872,19 @@ async function api(params) {
 async function loadData() {
   showLoading();
   try {
-    const [txRes, bdRes] = await Promise.all([
+    const [txRes, bdRes, tkRes] = await Promise.all([
       api({ action: 'get' }),
-      api({ action: 'getBudgets' })
+      api({ action: 'getBudgets' }),
+      api({ action: 'getTasks' })
     ]);
     if (txRes.error) throw new Error(txRes.error);
     txAll      = txRes.transactions || [];
     budgetsAll = bdRes.budgets      || [];
+    tasksAll   = tkRes.tasks        || [];
     render();
     if (curView === 'budget') renderBudgetView();
+    if (curView === 'task')   renderTaskView();
+    updateTaskBadge();
   } catch (e) {
     console.error(e);
     toast('❌ โหลดไม่ได้ ตรวจสอบ URL');
@@ -1014,6 +1165,205 @@ function renderCatGrid() {
 }
 
 function selCatFn(k) { selCat = k; renderCatGrid(); }
+
+// ── Task View ─────────────────────────────────────────────────────
+
+function renderTaskView() {
+  document.getElementById('task-year-lbl').textContent = 'ปี ' + (taskYear + 543);
+  renderMonthGrid();
+  renderTaskList();
+}
+
+function changeTaskYear(d) {
+  taskYear += d;
+  renderTaskView();
+}
+
+function selectTaskMonth(m) {
+  selTaskMonth = m;
+  renderMonthGrid();
+  renderTaskList();
+}
+
+function renderMonthGrid() {
+  const now = new Date();
+  document.getElementById('month-grid').innerHTML = TH_MONTHS_S.map((m, i) => {
+    const key    = `${taskYear}-${String(i + 1).padStart(2, '0')}`;
+    const tasks  = tasksAll.filter(t => t.month === key);
+    const isCur  = now.getMonth() === i && now.getFullYear() === taskYear;
+    const isSel  = selTaskMonth === i;
+    return `
+      <button class="month-chip ${isSel ? 'selected' : ''} ${isCur ? 'is-now' : ''}"
+              onclick="selectTaskMonth(${i})">
+        <span class="mc-name">${m}</span>
+        <span class="mc-dot ${tasks.length > 0 ? 'has' : ''}"></span>
+        ${tasks.length > 0 ? `<span class="mc-count">${tasks.length}</span>` : ''}
+      </button>`;
+  }).join('');
+}
+
+function renderTaskList() {
+  const key      = `${taskYear}-${String(selTaskMonth + 1).padStart(2, '0')}`;
+  const thYear   = taskYear + 543;
+  document.getElementById('task-month-title').textContent =
+    TH_MONTHS[selTaskMonth] + ' ' + thYear;
+
+  const tasks = tasksAll.filter(t => t.month === key);
+  const list  = document.getElementById('task-list');
+
+  if (tasks.length === 0) {
+    list.innerHTML = `<div class="no-budget-hint">
+      <div style="font-size:40px;opacity:.4">📅</div>
+      <div>ยังไม่มีแผนรายจ่ายในเดือนนี้</div>
+      <div style="color:var(--balance);font-weight:600;cursor:pointer" onclick="openTaskModal()">+ เพิ่มแผนรายจ่าย</div>
+    </div>`;
+    return;
+  }
+
+  const total = tasks.reduce((s, t) => s + t.amount, 0);
+  list.innerHTML =
+    `<div style="padding:8px 0 10px;font-size:13px;color:var(--sub)">
+       รวม ${tasks.length} รายการ · ${fmt(total)}
+     </div>` +
+    tasks.map(t => {
+      const cat = ALL_CATS.find(c => c.k === t.category) || { l: t.category, i: '📌' };
+      return `
+        <div class="task-card">
+          <span class="tc-icon">${cat.i}</span>
+          <div class="tc-info">
+            <div class="tc-desc">${t.description || cat.l}</div>
+            <div class="tc-cat">${cat.l}</div>
+          </div>
+          <div class="tc-right">
+            <span class="tc-amt">${fmt(t.amount)}</span>
+            <button class="btn-convert" onclick="convertTask('${t.id}')">✅ บันทึก</button>
+            <button class="btn-del-task" onclick="removeTask('${t.id}')">🗑 ลบ</button>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function updateTaskBadge() {
+  const now   = new Date();
+  const key   = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const tasks = tasksAll.filter(t => t.month === key);
+  const badge = document.getElementById('task-nav-badge');
+  if (badge) { badge.textContent = tasks.length; badge.style.display = tasks.length > 0 ? 'block' : 'none'; }
+
+  const banner = document.getElementById('task-alert-banner');
+  if (!banner) return;
+  if (tasks.length > 0) {
+    const total = tasks.reduce((s, t) => s + t.amount, 0);
+    document.getElementById('task-alert-text').innerHTML =
+      `<div class="ta-title">มีแผนรายจ่ายเดือนนี้ ${tasks.length} รายการ</div>
+       <div class="ta-sub">รวม ${fmt(total)} · กดเพื่อดูและบันทึก</div>`;
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// Task Modal
+function openTaskModal() {
+  selTaskCat = '';
+  document.getElementById('task-amt').value  = '';
+  document.getElementById('task-desc').value = '';
+
+  const monthSel = document.getElementById('task-month-sel');
+  monthSel.innerHTML = TH_MONTHS.map((m, i) =>
+    `<option value="${i}" ${i === selTaskMonth ? 'selected' : ''}>${m}</option>`
+  ).join('');
+
+  const thisYear = new Date().getFullYear();
+  const yearSel  = document.getElementById('task-year-sel');
+  yearSel.innerHTML = [thisYear, thisYear + 1, thisYear + 2].map(y =>
+    `<option value="${y}" ${y === taskYear ? 'selected' : ''}>${y + 543}</option>`
+  ).join('');
+
+  renderTaskCatGrid();
+  document.getElementById('task-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('task-amt').focus(), 400);
+}
+
+function closeTaskModal() {
+  document.getElementById('task-overlay').classList.remove('show');
+}
+
+function handleTaskOverlay(e) {
+  if (e.target === e.currentTarget) closeTaskModal();
+}
+
+function renderTaskCatGrid() {
+  document.getElementById('tm-cat-grid').innerHTML = CATS.expense.map(c => `
+    <button class="cat-btn ${selTaskCat === c.k ? 'sel' : ''}" onclick="selTaskCatFn('${c.k}')">
+      <span class="ci">${c.i}</span><span>${c.l}</span>
+    </button>`).join('');
+}
+
+function selTaskCatFn(k) { selTaskCat = k; renderTaskCatGrid(); }
+
+async function saveTask() {
+  const amount = parseFloat(document.getElementById('task-amt').value);
+  if (!selTaskCat)            { toast('❌ เลือกหมวดหมู่'); return; }
+  if (!amount || amount <= 0) { toast('❌ ใส่จำนวนเงิน'); return; }
+
+  const monthIdx = parseInt(document.getElementById('task-month-sel').value);
+  const year     = parseInt(document.getElementById('task-year-sel').value);
+  const month    = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
+  const desc     = document.getElementById('task-desc').value.trim();
+
+  const btn = document.getElementById('task-save-btn');
+  btn.textContent = 'กำลังบันทึก...';
+  btn.disabled    = true;
+
+  try {
+    const res = await api({ action: 'addTask', month, category: selTaskCat, description: desc, amount });
+    if (res.error) throw new Error(res.error);
+    tasksAll.push({ id: res.id, month, category: selTaskCat, description: desc, amount });
+    selTaskMonth = monthIdx;
+    taskYear     = year;
+    closeTaskModal();
+    renderTaskView();
+    updateTaskBadge();
+    toast('✅ บันทึกแผนแล้ว');
+  } catch (e) {
+    toast('❌ ' + e.message);
+  } finally {
+    btn.textContent = 'บันทึกแผน';
+    btn.disabled    = false;
+  }
+}
+
+async function convertTask(id) {
+  const task = tasksAll.find(t => t.id === id);
+  if (!task) return;
+  const [y, mo] = task.month.split('-');
+  const date    = `${y}-${mo}-01`;
+  try {
+    const [addRes] = await Promise.all([
+      api({ action: 'add', date, type: 'expense', category: task.category,
+            description: task.description || '', amount: task.amount }),
+    ]);
+    if (addRes.error) throw new Error(addRes.error);
+    await api({ action: 'deleteTask', id });
+    txAll.push({ id: addRes.id, date, type: 'expense', category: task.category,
+                 description: task.description || '', amount: task.amount });
+    tasksAll = tasksAll.filter(t => t.id !== id);
+    renderTaskView();
+    updateTaskBadge();
+    toast('✅ บันทึกเป็นรายจ่ายแล้ว');
+  } catch (e) { toast('❌ ' + e.message); }
+}
+
+async function removeTask(id) {
+  try {
+    await api({ action: 'deleteTask', id });
+    tasksAll = tasksAll.filter(t => t.id !== id);
+    renderTaskView();
+    updateTaskBadge();
+    toast('🗑 ลบแผนแล้ว');
+  } catch (e) { toast('❌ ' + e.message); }
+}
 
 // ── Settings ─────────────────────────────────────────────────────
 function openSettings() {
