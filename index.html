@@ -2,13 +2,15 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>💰 รายรับรายจ่าย</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    input, select, textarea { font-size: 16px !important; }
+    body { overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
 
     :root {
       --income:       #10B981;
@@ -382,6 +384,105 @@
       padding: 24px; color: var(--sub); font-size: 13px; gap: 8px; text-align: center;
     }
 
+    /* ── Swipe Delete ────────────────────────────────── */
+    .tx-item { position: relative; overflow: hidden; transition: transform .25s ease; }
+    .tx-item.swiped { transform: translateX(-80px); }
+    .swipe-del-btn {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 80px;
+      background: var(--expense); color: white; border: none; cursor: pointer;
+      font-size: 20px; display: flex; align-items: center; justify-content: center;
+      transform: translateX(100%); transition: transform .25s ease;
+    }
+    .tx-item.swiped .swipe-del-btn { transform: translateX(0); }
+    .tx-actions { display: flex; gap: 4px; align-items: center; }
+    .btn-edit { background: var(--balance-light); border: none; border-radius: 8px;
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 13px; color: var(--balance); flex-shrink: 0; }
+    .btn-dup  { background: #FEF3C7; border: none; border-radius: 8px;
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 13px; color: #D97706; flex-shrink: 0; }
+
+    /* ── Tags ────────────────────────────────────────── */
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .tag-chip  { background: var(--balance-light); color: var(--balance); border-radius: 99px;
+                 font-size: 10px; font-weight: 600; padding: 2px 8px; }
+    .tag-input-wrap { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+    .tag-input-wrap input { flex: 1; padding: 10px 14px; background: var(--bg); border: 2px solid transparent;
+      border-radius: 12px; font-family: 'Sarabun', sans-serif; color: var(--text); outline: none; }
+    .tag-input-wrap input:focus { border-color: var(--balance); }
+
+    /* ── Sort ────────────────────────────────────────── */
+    .sort-btn { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 5px 10px; font-size: 12px; font-weight: 600; font-family: 'Sarabun', sans-serif;
+      color: var(--sub); cursor: pointer; white-space: nowrap; }
+    .sort-btn.active { background: var(--balance); color: white; border-color: var(--balance); }
+
+    /* ── Calendar ────────────────────────────────────── */
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+    .cal-day-lbl { text-align: center; font-size: 10px; font-weight: 700; color: var(--sub); padding: 4px 0; }
+    .cal-day { text-align: center; padding: 6px 2px; border-radius: 8px; font-size: 12px; cursor: pointer;
+               min-height: 36px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .cal-day:hover { background: var(--bg); }
+    .cal-day.today { background: var(--balance); color: white; font-weight: 700; }
+    .cal-day.selected { outline: 2px solid var(--balance); }
+    .cal-day.has-tx::after { content: ''; width: 4px; height: 4px; border-radius: 50%;
+                              background: var(--expense); display: block; }
+    .cal-day.today.has-tx::after { background: white; }
+    .cal-day.empty { cursor: default; }
+    .cal-view-btn { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 5px 10px; font-size: 12px; font-weight: 600; font-family: 'Sarabun', sans-serif;
+      color: var(--sub); cursor: pointer; }
+    .cal-view-btn.active { background: var(--balance); color: white; border-color: var(--balance); }
+
+    /* ── Trend Alert ─────────────────────────────────── */
+    .trend-alert { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 14px;
+      padding: 12px 16px; margin: 0 14px 0; display: flex; gap: 10px; align-items: flex-start; }
+    .trend-alert.good { background: #F0FDF4; border-color: #BBF7D0; }
+    body[data-dark] .trend-alert { background: #451A03; border-color: #92400E; }
+    body[data-dark] .trend-alert.good { background: #052E16; border-color: #166534; }
+
+    /* ── Multi-currency ──────────────────────────────── */
+    .currency-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .currency-row select { flex: 1; padding: 10px 12px; border: 2px solid var(--border);
+      border-radius: 12px; font-family: 'Sarabun', sans-serif; color: var(--text);
+      background: var(--bg); outline: none; }
+    .currency-row input { width: 110px; padding: 10px 12px; border: 2px solid var(--border);
+      border-radius: 12px; font-family: 'Sarabun', sans-serif; color: var(--text);
+      background: var(--bg); outline: none; }
+
+    /* ── Installment Card ────────────────────────────── */
+    .inst-card { background: var(--card); border-radius: 14px; padding: 14px 16px;
+      box-shadow: var(--shadow); margin-bottom: 10px; }
+    .inst-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .inst-name { font-size: 14px; font-weight: 700; flex: 1; }
+    .inst-badge { background: #EFF6FF; color: #1D4ED8; border-radius: 99px;
+      font-size: 11px; font-weight: 700; padding: 3px 8px; }
+    .inst-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-pay { flex: 1; padding: 8px; background: var(--income-light); color: var(--income);
+      border: none; border-radius: 10px; font-size: 13px; font-weight: 600;
+      font-family: 'Sarabun', sans-serif; cursor: pointer; }
+
+    /* ── Debt Card ───────────────────────────────────── */
+    .debt-card { background: var(--card); border-radius: 14px; padding: 14px 16px;
+      box-shadow: var(--shadow); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px; }
+    .debt-avatar { width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; flex-shrink: 0; }
+    .debt-avatar.owe  { background: #FEE2E2; color: var(--expense); }
+    .debt-avatar.lend { background: #D1FAE5; color: var(--income); }
+    .debt-info { flex: 1; min-width: 0; }
+    .debt-person { font-size: 14px; font-weight: 700; }
+    .debt-note   { font-size: 12px; color: var(--sub); }
+    .debt-right  { text-align: right; flex-shrink: 0; }
+    .debt-amt    { font-size: 15px; font-weight: 700; }
+    .debt-amt.owe  { color: var(--expense); }
+    .debt-amt.lend { color: var(--income); }
+    .btn-settle { background: var(--income-light); color: var(--income); border: none;
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600;
+      cursor: pointer; margin-top: 4px; font-family: 'Sarabun', sans-serif; }
+    .debt-type-lbl { font-size: 10px; color: var(--sub); }
+
     /* ── Dark Mode ──────────────────────────────────── */
     body[data-dark] {
       --bg:     #0F172A;
@@ -698,6 +799,12 @@
     <span class="ta-arrow">›</span>
   </div>
 
+  <!-- Trend Alert -->
+  <div class="trend-alert" id="trend-alert" style="display:none;margin:10px 14px 0;align-items:flex-start;gap:10px;padding:12px 14px">
+    <span id="trend-icon" style="font-size:20px">⚠️</span>
+    <span id="trend-text" style="font-size:13px;line-height:1.4"></span>
+  </div>
+
   <!-- Chart -->
   <div class="section">
     <div class="chart-card">
@@ -720,10 +827,15 @@
   <div class="section">
     <div class="section-header">
       <div class="section-title">รายการ</div>
-      <div class="filter-tabs">
-        <button class="ftab active" data-f="all"     onclick="setFilter('all')">ทั้งหมด</button>
-        <button class="ftab"        data-f="income"  onclick="setFilter('income')">รายรับ</button>
-        <button class="ftab"        data-f="expense" onclick="setFilter('expense')">รายจ่าย</button>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <button class="sort-btn active" id="sort-date" onclick="setSortMode('date')" title="เรียงตามวันที่">📅</button>
+        <button class="sort-btn" id="sort-high" onclick="setSortMode('amt_desc')" title="มากสุด">↓฿</button>
+        <button class="sort-btn" id="sort-low"  onclick="setSortMode('amt_asc')"  title="น้อยสุด">↑฿</button>
+        <div class="filter-tabs">
+          <button class="ftab active" data-f="all"     onclick="setFilter('all')">ทั้งหมด</button>
+          <button class="ftab"        data-f="income"  onclick="setFilter('income')">รายรับ</button>
+          <button class="ftab"        data-f="expense" onclick="setFilter('expense')">รายจ่าย</button>
+        </div>
       </div>
     </div>
     <div class="tx-list" id="tx-list">
@@ -740,7 +852,10 @@
   <div class="budget-header">
     <div class="header-top">
       <div class="app-title">📋 วางแผนงบ</div>
-      <button class="btn-icon" onclick="openSettings()">⚙️</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-icon" onclick="autoCopyBudget()" title="คัดลอกงบจากช่วงก่อน">📋</button>
+        <button class="btn-icon" onclick="openSettings()">⚙️</button>
+      </div>
     </div>
     <div class="budget-type-toggle">
       <button class="btype-btn active" id="btype-mon" onclick="setBudgetType('monthly')">📅 รายเดือน</button>
@@ -779,6 +894,14 @@
     </div>
     <div id="goal-list"></div>
   </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">🤝 หนี้สิน / ให้ยืม</div>
+      <button class="btn-icon" style="background:#7C3AED;color:white;border-radius:10px;width:32px;height:32px;font-size:18px" onclick="openDebtModal()">+</button>
+    </div>
+    <div id="debt-list"></div>
+  </div>
 </div>
 
 <!-- ─── Task View ────────────────────────────────────────────────── -->
@@ -812,6 +935,14 @@
     </div>
     <button class="btn-secondary" style="margin-bottom:10px" onclick="applyRecurring()">📅 สร้างแผนเดือนนี้จากรายจ่ายประจำ</button>
     <div id="recur-list"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">💳 ผ่อนชำระ</div>
+      <button class="btn-icon" style="background:#0369A1;color:white;border-radius:10px;width:32px;height:32px;font-size:18px" onclick="openInstModal()">+</button>
+    </div>
+    <div id="inst-list"></div>
   </div>
 </div>
 
@@ -860,6 +991,7 @@
   <button class="nav-btn" id="nav-budget" onclick="switchView('budget')">
     <span class="nav-icon">📋</span>
     <span class="nav-label">แผนงบ</span>
+    <span class="nav-badge" id="budget-nav-badge"></span>
   </button>
 </nav>
 
@@ -888,7 +1020,7 @@
 <div class="overlay" id="add-overlay" onclick="handleAddOverlay(event)">
   <div class="modal">
     <div class="modal-hdr">
-      <div class="modal-title">เพิ่มรายการ</div>
+      <div class="modal-title" id="modal-title-add">เพิ่มรายการ</div>
       <button class="btn-close" onclick="closeModal()">✕</button>
     </div>
 
@@ -906,6 +1038,7 @@
     <div class="cat-grid" id="cat-grid"></div>
 
     <input id="desc-in" class="form-in" type="text" placeholder="รายละเอียด (ไม่บังคับ)">
+    <input id="tags-in" class="form-in" type="text" placeholder="แท็ก เช่น ด่วน,สำคัญ (คั่นด้วยจุลภาค)">
     <input id="date-in" class="form-in" type="date">
 
     <button class="btn-primary" id="save-btn" onclick="saveTransaction()">บันทึก</button>
@@ -1079,8 +1212,66 @@
 
     <div class="settings-lbl">ข้อมูล</div>
     <button class="btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+    <label class="btn-secondary" style="cursor:pointer;display:block;text-align:left">📤 Import CSV
+      <input type="file" accept=".csv" style="display:none" onchange="importCSV(this)">
+    </label>
     <button class="btn-secondary" onclick="refreshData()">🔄 โหลดข้อมูลใหม่</button>
     <button class="btn-secondary" onclick="resetSetup()" style="color:var(--expense)">🔌 รีเซ็ตการตั้งค่า</button>
+  </div>
+</div>
+
+<!-- ─── Installment Modal ─────────────────────────────────────────── -->
+<div class="overlay" id="inst-overlay" onclick="if(event.target===this)closeInstModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">เพิ่มการผ่อน</div>
+      <button class="btn-close" onclick="closeInstModal()">✕</button>
+    </div>
+    <input id="inst-name" class="form-in" type="text" placeholder="ชื่อสินค้า เช่น iPhone, โน้ตบุ๊ก">
+    <div class="form-lbl">หมวดหมู่</div>
+    <div class="cat-grid" id="inst-cat-grid"></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <div class="form-lbl">ราคารวม (฿)</div>
+        <input id="inst-total" class="form-in" type="number" inputmode="decimal" placeholder="0" style="margin:0">
+      </div>
+      <div style="width:100px">
+        <div class="form-lbl">งวดละ (฿)</div>
+        <input id="inst-monthly" class="form-in" type="number" inputmode="decimal" placeholder="0" style="margin:0">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <div class="form-lbl">เดือนเริ่ม</div>
+        <input id="inst-start" class="form-in" type="month" style="margin:0">
+      </div>
+      <div style="width:100px">
+        <div class="form-lbl">จำนวนงวด</div>
+        <input id="inst-months" class="form-in" type="number" placeholder="12" style="margin:0">
+      </div>
+    </div>
+    <button class="btn-primary" id="inst-save-btn" onclick="saveInstallment()">บันทึก</button>
+  </div>
+</div>
+
+<!-- ─── Debt Modal ────────────────────────────────────────────────── -->
+<div class="overlay" id="debt-overlay" onclick="if(event.target===this)closeDebtModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">บันทึกหนี้ / ให้ยืม</div>
+      <button class="btn-close" onclick="closeDebtModal()">✕</button>
+    </div>
+    <div class="type-toggle" style="margin-bottom:12px">
+      <button class="type-btn active expense" id="debt-owe-btn" onclick="setDebtType('owe')">💸 ฉันเป็นหนี้</button>
+      <button class="type-btn income"         id="debt-lend-btn" onclick="setDebtType('lend')">💰 ให้ยืม</button>
+    </div>
+    <input id="debt-person" class="form-in" type="text" placeholder="ชื่อ เช่น คุณแม่, เพื่อน">
+    <div class="amount-wrap">
+      <span class="amount-pfx">฿</span>
+      <input id="debt-amount" class="amount-in" type="number" inputmode="decimal" placeholder="0">
+    </div>
+    <input id="debt-note" class="form-in" type="text" placeholder="หมายเหตุ (ไม่บังคับ)">
+    <button class="btn-primary" id="debt-save-btn" onclick="saveDebt()">บันทึก</button>
   </div>
 </div>
 
@@ -1170,6 +1361,14 @@ let searchQuery = '';
 // Custom categories (localStorage)
 let customCats = [];
 
+// Round 2 state
+let installmentsAll = [];
+let debtsAll        = [];
+let sortMode        = 'date';
+let editId          = null;
+let instSelCat      = '';
+let debtModalType   = 'owe';
+
 const TH_MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
 // ── Init ─────────────────────────────────────────────────────────
@@ -1234,8 +1433,8 @@ function switchView(view) {
   ['main','task','report','budget'].forEach(v => {
     document.getElementById('nav-' + v)?.classList.toggle('active', view === v);
   });
-  if (view === 'budget') { renderBudgetView(); renderGoals(); }
-  if (view === 'task')   { renderTaskView(); renderRecurring(); }
+  if (view === 'budget') { renderBudgetView(); renderGoals(); renderDebts(); }
+  if (view === 'task')   { renderTaskView(); renderRecurring(); renderInstallments(); }
   if (view === 'report') renderReport();
 }
 
@@ -1251,24 +1450,29 @@ async function api(params) {
 async function loadData() {
   showLoading();
   try {
-    const [txRes, bdRes, tkRes, recRes, goalRes] = await Promise.all([
+    const [txRes, bdRes, tkRes, recRes, goalRes, instRes, debtRes] = await Promise.all([
       api({ action: 'get' }),
       api({ action: 'getBudgets' }),
       api({ action: 'getTasks' }),
       api({ action: 'getRecurring' }),
-      api({ action: 'getGoals' })
+      api({ action: 'getGoals' }),
+      api({ action: 'getInstallments' }),
+      api({ action: 'getDebts' })
     ]);
     if (txRes.error) throw new Error(txRes.error);
-    txAll        = txRes.transactions || [];
-    budgetsAll   = bdRes.budgets      || [];
-    tasksAll     = tkRes.tasks        || [];
-    recurringAll = recRes.recurring   || [];
-    goalsAll     = goalRes.goals      || [];
+    txAll           = txRes.transactions   || [];
+    budgetsAll      = bdRes.budgets        || [];
+    tasksAll        = tkRes.tasks          || [];
+    recurringAll    = recRes.recurring     || [];
+    goalsAll        = goalRes.goals        || [];
+    installmentsAll = instRes.installments || [];
+    debtsAll        = debtRes.debts        || [];
     render();
-    if (curView === 'budget') { renderBudgetView(); renderGoals(); }
-    if (curView === 'task')   { renderTaskView(); renderRecurring(); }
+    if (curView === 'budget') { renderBudgetView(); renderGoals(); renderDebts(); }
+    if (curView === 'task')   { renderTaskView(); renderRecurring(); renderInstallments(); }
     if (curView === 'report') renderReport();
     updateTaskBadge();
+    updateBudgetBadge();
   } catch (e) {
     console.error(e);
     toast('❌ โหลดไม่ได้ ตรวจสอบ URL');
@@ -1284,20 +1488,31 @@ async function saveTransaction() {
 
   const date = document.getElementById('date-in').value;
   const desc = document.getElementById('desc-in').value.trim();
+  const tags = document.getElementById('tags-in').value.trim();
 
   const btn = document.getElementById('save-btn');
   btn.textContent = 'กำลังบันทึก...';
   btn.disabled    = true;
 
   try {
-    const res = await api({
-      action: 'add', type: curType,
-      category: selCat, description: desc, amount, date
-    });
-    if (res.error) throw new Error(res.error);
-    closeModal();
-    toast('✅ บันทึกสำเร็จ');
-    await loadData();
+    if (editId) {
+      const res = await api({ action: 'update', id: editId, type: curType,
+        category: selCat, description: desc, amount, date, tags });
+      if (res.error) throw new Error(res.error);
+      const t = txAll.find(x => x.id === editId);
+      if (t) Object.assign(t, { type: curType, category: selCat, description: desc, amount, date, tags });
+      editId = null;
+      closeModal();
+      toast('✅ แก้ไขสำเร็จ');
+      render();
+    } else {
+      const res = await api({ action: 'add', type: curType,
+        category: selCat, description: desc, amount, date, tags });
+      if (res.error) throw new Error(res.error);
+      closeModal();
+      toast('✅ บันทึกสำเร็จ');
+      await loadData();
+    }
   } catch (e) {
     toast('❌ บันทึกไม่ได้');
   } finally {
@@ -1325,6 +1540,8 @@ function render() {
   updateSummary(monthTx);
   renderChart(monthTx);
   renderList(monthTx);
+  checkTrend(monthTx);
+  updateBudgetBadge();
 }
 
 function txForMonth() {
@@ -1366,7 +1583,10 @@ function sum(txs, type) {
 
 function renderList(monthTx) {
   const list = document.getElementById('tx-list');
-  const txs  = filtered(monthTx).sort((a, b) => new Date(b.date) - new Date(a.date));
+  let txs = filtered(monthTx);
+  if (sortMode === 'amt_desc')     txs = txs.sort((a,b) => b.amount - a.amount);
+  else if (sortMode === 'amt_asc') txs = txs.sort((a,b) => a.amount - b.amount);
+  else txs = txs.sort((a,b) => new Date(b.date) - new Date(a.date));
 
   if (txs.length === 0) {
     list.innerHTML = `<div class="no-data"><div class="no-data-icon">📝</div><div>ยังไม่มีรายการ</div></div>`;
@@ -1385,17 +1605,20 @@ function renderList(monthTx) {
 }
 
 function txHTML(t) {
-  const cat    = ALL_CATS.find(c => c.k === t.category) || { l: t.category, i: '📌' };
-  const isInc  = t.type === 'income';
+  const cat   = ALL_CATS.find(c => c.k === t.category) || { l: t.category, i: '📌' };
+  const isInc = t.type === 'income';
+  const tags  = (t.tags || '').split(',').filter(s => s.trim());
   return `
-    <div class="tx-item">
+    <div class="tx-item" id="txi-${t.id}">
       <div class="tx-icon ${isInc ? 'in-bg' : 'ex-bg'}">${cat.i}</div>
       <div class="tx-info">
         <div class="tx-cat">${cat.l}</div>
         <div class="tx-desc">${t.description || '—'}</div>
+        ${tags.length ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px">${tags.map(g=>`<span class="tag-chip">${g.trim()}</span>`).join('')}</div>` : ''}
       </div>
       <div class="tx-amt ${t.type}">${isInc ? '+' : '-'}${fmt(t.amount)}</div>
-      <button class="btn-del" onclick="deleteTx('${t.id}')">🗑️</button>
+      <button class="btn-edit" onclick="editTx('${t.id}')">✏️</button>
+      <button class="btn-del"  onclick="deleteTx('${t.id}')">🗑️</button>
     </div>`;
 }
 
@@ -1550,10 +1773,13 @@ function setFilter(f) {
 
 // ── Modal ────────────────────────────────────────────────────────
 function openModal() {
+  editId = null;
   selCat = '';
-  document.getElementById('amt-in').value  = '';
-  document.getElementById('desc-in').value = '';
-  document.getElementById('date-in').value = today();
+  document.getElementById('modal-title-add').textContent = 'เพิ่มรายการ';
+  document.getElementById('amt-in').value   = '';
+  document.getElementById('desc-in').value  = '';
+  document.getElementById('tags-in').value  = '';
+  document.getElementById('date-in').value  = today();
   setType('expense');
   document.getElementById('add-overlay').classList.add('show');
   setTimeout(() => document.getElementById('amt-in').focus(), 400);
@@ -2405,7 +2631,6 @@ async function saveBudget() {
     });
     if (res.error) throw new Error(res.error);
 
-    // Update local cache
     const idx = budgetsAll.findIndex(b => b.period === budgetPeriodKey() && b.category === selBudgetCat);
     if (idx >= 0) { budgetsAll[idx].amount = amount; }
     else { budgetsAll.push({ id: res.id, period: budgetPeriodKey(), type: budgetType, category: selBudgetCat, amount }); }
@@ -2413,12 +2638,330 @@ async function saveBudget() {
     closeBudgetModal();
     toast('✅ บันทึกงบแล้ว');
     renderBudgetView();
+    updateBudgetBadge();
   } catch (e) {
     toast('❌ บันทึกไม่ได้');
   } finally {
     btn.textContent = 'บันทึกงบ';
     btn.disabled    = false;
   }
+}
+
+// ── Edit Transaction ──────────────────────────────────────────────
+function editTx(id) {
+  const t = txAll.find(x => x.id === id);
+  if (!t) return;
+  editId = id;
+  document.getElementById('modal-title-add').textContent = 'แก้ไขรายการ';
+  setType(t.type);
+  selCat = t.category;
+  renderCatGrid();
+  document.getElementById('amt-in').value  = t.amount;
+  document.getElementById('desc-in').value = t.description || '';
+  document.getElementById('tags-in').value = t.tags || '';
+  document.getElementById('date-in').value = t.date;
+  document.getElementById('add-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('amt-in').focus(), 300);
+}
+
+async function duplicateTx(id) {
+  const t = txAll.find(x => x.id === id);
+  if (!t) return;
+  try {
+    const res = await api({ action: 'add', type: t.type, category: t.category,
+      description: t.description, amount: t.amount, date: today(), tags: t.tags || '' });
+    if (res.error) throw new Error(res.error);
+    txAll.push({ id: res.id, date: today(), type: t.type, category: t.category,
+      description: t.description, amount: t.amount, tags: t.tags || '' });
+    render();
+    toast('✅ คัดลอกแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+// ── Sort ──────────────────────────────────────────────────────────
+function setSortMode(mode) {
+  sortMode = mode;
+  document.getElementById('sort-date').classList.toggle('active', mode === 'date');
+  document.getElementById('sort-high').classList.toggle('active', mode === 'amt_desc');
+  document.getElementById('sort-low').classList.toggle('active', mode === 'amt_asc');
+  renderList(txForMonth());
+}
+
+// ── Trend Alert ───────────────────────────────────────────────────
+function checkTrend(monthTx) {
+  const curExp = sum(monthTx, 'expense');
+  let total = 0;
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(curYear, curMonth - i, 1);
+    const m = d.getMonth(), y = d.getFullYear();
+    total += txAll.filter(t => {
+      const td = new Date(t.date);
+      return td.getMonth() === m && td.getFullYear() === y && t.type === 'expense';
+    }).reduce((s, t) => s + t.amount, 0);
+  }
+  const avg = total / 3;
+  const el  = document.getElementById('trend-alert');
+  if (!el) return;
+  if (avg > 100 && curExp > avg * 1.2) {
+    document.getElementById('trend-icon').textContent = '⚠️';
+    document.getElementById('trend-text').textContent =
+      `รายจ่ายเดือนนี้ ${fmt(curExp)} สูงกว่าค่าเฉลี่ย 3 เดือน (${fmt(Math.round(avg))}) ถึง ${Math.round((curExp/avg-1)*100)}%`;
+    el.style.display = 'flex'; el.classList.remove('good');
+  } else if (avg > 100 && curExp < avg * 0.8 && curExp > 0) {
+    document.getElementById('trend-icon').textContent = '😊';
+    document.getElementById('trend-text').textContent =
+      `รายจ่ายเดือนนี้ ${fmt(curExp)} ต่ำกว่าค่าเฉลี่ย 3 เดือน 🎉`;
+    el.style.display = 'flex'; el.classList.add('good');
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ── Budget Badge ──────────────────────────────────────────────────
+function updateBudgetBadge() {
+  const badge = document.getElementById('budget-nav-badge');
+  if (!badge) return;
+  const now = new Date();
+  const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const budgets  = budgetsAll.filter(b => b.period === key);
+  const monthExp = txAll.filter(t => {
+    const d = new Date(t.date);
+    return t.type === 'expense' && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  });
+  let alertCount = 0;
+  budgets.forEach(b => {
+    const used = monthExp.filter(t => t.category === b.category).reduce((s,t) => s+t.amount, 0);
+    if (b.amount > 0 && used / b.amount >= 0.8) alertCount++;
+  });
+  badge.textContent = alertCount;
+  badge.style.display = alertCount > 0 ? 'block' : 'none';
+}
+
+// ── Budget Auto-Copy ──────────────────────────────────────────────
+async function autoCopyBudget() {
+  let prevM = budgetMonth - 1, prevY = budgetYear;
+  if (budgetType === 'yearly') { prevY--; }
+  else if (prevM < 0)          { prevM = 11; prevY--; }
+  const prevKey = budgetType === 'monthly'
+    ? `${prevY}-${String(prevM+1).padStart(2,'0')}` : `${prevY}`;
+  const prevBudgets = budgetsAll.filter(b => b.period === prevKey && b.type === budgetType);
+  if (prevBudgets.length === 0) { toast('ไม่มีงบจากช่วงก่อน'); return; }
+  const curKey = budgetPeriodKey();
+  let added = 0;
+  for (const b of prevBudgets) {
+    const exists = budgetsAll.some(x => x.period === curKey && x.category === b.category);
+    if (!exists) {
+      const res = await api({ action: 'setBudget', period: curKey, type: budgetType, category: b.category, amount: b.amount });
+      if (!res.error) {
+        budgetsAll.push({ id: res.id, period: curKey, type: budgetType, category: b.category, amount: b.amount });
+        added++;
+      }
+    }
+  }
+  renderBudgetView(); updateBudgetBadge();
+  toast(added > 0 ? `✅ คัดลอก ${added} งบแล้ว` : 'ทุกหมวดมีงบแล้ว');
+}
+
+// ── Installments ──────────────────────────────────────────────────
+function renderInstallments() {
+  const list = document.getElementById('inst-list');
+  if (!list) return;
+  if (installmentsAll.length === 0) {
+    list.innerHTML = '<div class="no-budget-hint"><div style="font-size:32px;opacity:.4">💳</div><div>ยังไม่มีรายการผ่อน</div></div>';
+    return;
+  }
+  list.innerHTML = installmentsAll.map(inst => {
+    const cat       = ALL_CATS.find(c => c.k === inst.category) || { l: inst.category, i: '📌' };
+    const remaining = inst.months - inst.paid;
+    const pct       = inst.months > 0 ? inst.paid / inst.months : 0;
+    return `<div class="inst-card">
+      <div class="inst-header">
+        <span style="font-size:22px">${cat.i}</span>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">${inst.name}</div>
+          <div style="font-size:12px;color:var(--sub)">${cat.l} · เหลือ ${remaining} งวด</div>
+        </div>
+        <button onclick="deleteInst('${inst.id}')" style="background:var(--expense-light);color:var(--expense);border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px">ลบ</button>
+      </div>
+      <div class="progress-wrap" style="margin:8px 0">
+        <div class="progress-bar ok" style="width:${Math.round(pct*100)}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:8px">
+        <span>จ่ายแล้ว ${inst.paid}/${inst.months} งวด</span>
+        <span>งวดละ ${fmt(inst.monthly)}</span>
+      </div>
+      ${remaining > 0
+        ? `<button class="btn-pay" onclick="payInst('${inst.id}')">💳 จ่ายงวดนี้ ${fmt(inst.monthly)}</button>`
+        : `<div style="text-align:center;color:var(--income);font-weight:700;font-size:13px;padding:8px 0">✅ ชำระครบแล้ว</div>`}
+    </div>`;
+  }).join('');
+}
+
+function openInstModal() {
+  instSelCat = '';
+  ['inst-name','inst-total','inst-monthly','inst-months'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inst-start').value = new Date().toISOString().slice(0,7);
+  renderInstCatGrid();
+  document.getElementById('inst-overlay').classList.add('show');
+}
+
+function closeInstModal() { document.getElementById('inst-overlay').classList.remove('show'); }
+
+function renderInstCatGrid() {
+  document.getElementById('inst-cat-grid').innerHTML = CATS.expense.map(c => `
+    <button class="cat-btn ${instSelCat===c.k?'sel':''}" onclick="selInstCat('${c.k}')">
+      <span class="ci">${c.i}</span><span>${c.l}</span>
+    </button>`).join('');
+}
+
+function selInstCat(k) { instSelCat = k; renderInstCatGrid(); }
+
+async function saveInstallment() {
+  const name    = document.getElementById('inst-name').value.trim();
+  const total   = parseFloat(document.getElementById('inst-total').value);
+  const monthly = parseFloat(document.getElementById('inst-monthly').value);
+  const start   = document.getElementById('inst-start').value;
+  const months  = parseInt(document.getElementById('inst-months').value);
+  if (!name)                    { toast('❌ ใส่ชื่อสินค้า'); return; }
+  if (!instSelCat)              { toast('❌ เลือกหมวดหมู่'); return; }
+  if (!total || total <= 0)     { toast('❌ ใส่ราคารวม'); return; }
+  if (!monthly || monthly <= 0) { toast('❌ ใส่งวดละ'); return; }
+  if (!months || months < 1)    { toast('❌ ใส่จำนวนงวด'); return; }
+  if (!start)                   { toast('❌ เลือกเดือนเริ่ม'); return; }
+  const btn = document.getElementById('inst-save-btn');
+  btn.textContent = 'กำลังบันทึก...'; btn.disabled = true;
+  try {
+    const res = await api({ action: 'addInstallment', name, category: instSelCat, total, monthly, start, months });
+    if (res.error) throw new Error(res.error);
+    installmentsAll.push({ id: res.id, name, category: instSelCat, total, monthly, start, months, paid: 0 });
+    closeInstModal(); renderInstallments(); toast('✅ เพิ่มการผ่อนแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.textContent = 'บันทึก'; btn.disabled = false; }
+}
+
+async function payInst(id) {
+  const inst = installmentsAll.find(i => i.id === id);
+  if (!inst) return;
+  try {
+    await api({ action: 'payInstallment', id });
+    const paidNum = inst.paid + 1;
+    await api({ action: 'add', type: 'expense', category: inst.category,
+      description: `${inst.name} งวดที่ ${paidNum}`, amount: inst.monthly, date: today() });
+    inst.paid = paidNum;
+    txAll.push({ id: String(Date.now()), date: today(), type: 'expense', category: inst.category,
+      description: `${inst.name} งวดที่ ${paidNum}`, amount: inst.monthly, tags: '' });
+    render(); renderInstallments(); toast('✅ บันทึกการจ่ายแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function deleteInst(id) {
+  if (!confirm('ลบรายการผ่อนนี้?')) return;
+  await api({ action: 'deleteInstallment', id });
+  installmentsAll = installmentsAll.filter(i => i.id !== id);
+  renderInstallments(); toast('🗑 ลบแล้ว');
+}
+
+// ── Debts ─────────────────────────────────────────────────────────
+function renderDebts() {
+  const list = document.getElementById('debt-list');
+  if (!list) return;
+  if (debtsAll.length === 0) {
+    list.innerHTML = '<div class="no-budget-hint"><div style="font-size:32px;opacity:.4">🤝</div><div>ยังไม่มีรายการหนี้</div></div>';
+    return;
+  }
+  const unsettled = debtsAll.filter(d => !d.settled);
+  if (unsettled.length === 0) {
+    list.innerHTML = '<div class="no-budget-hint"><div style="font-size:32px">✅</div><div>ชำระหมดแล้ว</div></div>';
+    return;
+  }
+  list.innerHTML = unsettled.map(d => {
+    const isOwe = d.type === 'owe';
+    return `<div class="debt-card">
+      <div class="debt-avatar ${isOwe?'owe':'lend'}">${isOwe?'💸':'💰'}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700">${d.person}</div>
+        <div style="font-size:12px;color:var(--sub)">${isOwe?'ฉันเป็นหนี้':'ฉันให้ยืม'}${d.note?' · '+d.note:''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:15px;font-weight:700;color:${isOwe?'var(--expense)':'var(--income)'}">${fmt(d.amount)}</div>
+        <button class="btn-settle" onclick="settleDebtItem('${d.id}')">✅ ชำระแล้ว</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openDebtModal() {
+  debtModalType = 'owe';
+  document.getElementById('debt-owe-btn').classList.add('active');
+  document.getElementById('debt-lend-btn').classList.remove('active');
+  document.getElementById('debt-person').value = '';
+  document.getElementById('debt-amount').value = '';
+  document.getElementById('debt-note').value   = '';
+  document.getElementById('debt-overlay').classList.add('show');
+}
+
+function closeDebtModal() { document.getElementById('debt-overlay').classList.remove('show'); }
+
+function setDebtType(type) {
+  debtModalType = type;
+  document.getElementById('debt-owe-btn').classList.toggle('active', type === 'owe');
+  document.getElementById('debt-lend-btn').classList.toggle('active', type === 'lend');
+}
+
+async function saveDebt() {
+  const person = document.getElementById('debt-person').value.trim();
+  const amount = parseFloat(document.getElementById('debt-amount').value);
+  const note   = document.getElementById('debt-note').value.trim();
+  if (!person)              { toast('❌ ใส่ชื่อ'); return; }
+  if (!amount || amount<=0) { toast('❌ ใส่จำนวนเงิน'); return; }
+  const btn = document.getElementById('debt-save-btn');
+  btn.textContent = 'กำลังบันทึก...'; btn.disabled = true;
+  try {
+    const res = await api({ action: 'addDebt', person, amount, type: debtModalType, note, date: today() });
+    if (res.error) throw new Error(res.error);
+    debtsAll.push({ id: res.id, person, amount, type: debtModalType, note, settled: false });
+    closeDebtModal(); renderDebts(); toast('✅ บันทึกแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.textContent = 'บันทึก'; btn.disabled = false; }
+}
+
+async function settleDebtItem(id) {
+  try {
+    await api({ action: 'settleDebt', id });
+    const d = debtsAll.find(x => x.id === id);
+    if (d) d.settled = true;
+    renderDebts(); toast('✅ บันทึกการชำระแล้ว');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+// ── CSV Import ────────────────────────────────────────────────────
+async function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  toast('⏳ กำลัง import...');
+  const text  = await file.text();
+  const lines = text.trim().split('\n');
+  let success = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g,'').trim());
+    if (cols.length < 5) continue;
+    const [date, typeStr, catStr, desc, amtStr] = cols;
+    const amount = parseFloat((amtStr||'').replace(/[฿, ]/g,''));
+    if (!amount || isNaN(amount)) continue;
+    const type    = typeStr.includes('รายรับ') ? 'income' : 'expense';
+    const catObj  = ALL_CATS.find(c => c.l === catStr || c.k === catStr);
+    const category = catObj ? catObj.k : (type === 'income' ? 'other_in' : 'other_ex');
+    try {
+      const res = await api({ action: 'add', type, category, description: desc||'', amount, date: date.trim(), tags: '' });
+      if (!res.error) {
+        txAll.push({ id: res.id, date: date.trim(), type, category, description: desc||'', amount, tags: '' });
+        success++;
+      }
+    } catch(e) {}
+  }
+  input.value = '';
+  render(); closeSettings();
+  toast(`✅ Import ${success} รายการแล้ว`);
 }
 </script>
 </body>
