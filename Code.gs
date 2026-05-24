@@ -9,9 +9,10 @@
 // ============================================================
 
 const SHEET_NAME = 'Transactions';
+const SPREADSHEET_ID = '1Jg5zC0P9VVG74xQ8P5EgYnOxA3YZCNw3W2Z4J08Rnno';
 
 function doGet(e) {
-  const p = e.parameter;
+  const p = (e && e.parameter) ? e.parameter : {};
   let result;
 
   try {
@@ -40,7 +41,9 @@ function getTransactions() {
     .filter(r => r[0])
     .map(r => ({
       id:          String(r[0]),
-      date:        String(r[1]),
+      date:        (r[1] instanceof Date)
+                     ? Utilities.formatDate(r[1], 'Asia/Bangkok', 'yyyy-MM-dd')
+                     : String(r[1]),
       type:        String(r[2]),
       category:    String(r[3]),
       description: String(r[4]),
@@ -81,7 +84,7 @@ function deleteTransaction(id) {
 }
 
 function getOrCreateSheet() {
-  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
   let   sheet = ss.getSheetByName(SHEET_NAME);
 
   if (!sheet) {
